@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SpatialSys.UnitySDK;
 
 public class Player : MonoBehaviour
 {
@@ -11,8 +12,10 @@ public class Player : MonoBehaviour
 
     [SerializeField] private LayerMask _layerMask;
 
-    [SerializeField] private LineRenderer _lineRenderer;
-    private IEnumerator _lineCoroutine;
+    [SerializeField] private LineRenderer[] _lineRenderers;
+    private float[] _lineRendererTimers;
+
+    private bool _isAttack = true;
 
     private void Awake()
     {
@@ -20,6 +23,7 @@ public class Player : MonoBehaviour
         {
             instance = this;
         }
+        _lineRendererTimers = new float[_lineRenderers.Length];
     }
     private void OnDestroy()
     {
@@ -37,30 +41,64 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        foreach (Collider collider in Physics.OverlapSphere(_playerPosition, _radius, _layerMask))
+        if (Input.GetKeyDown(KeyCode.J))
         {
-            if (collider.TryGetComponent(out ZombieBehaviour zombie))
-            {
-                if (zombie.readyToHit)
-                {
-                    if (_lineCoroutine != null)
-                    {
-                        StopCoroutine(_lineCoroutine);
-                    }
-                    _lineCoroutine = LineCoroutine(zombie);
-                    StartCoroutine(_lineCoroutine);
+            _isAttack = !_isAttack;
+        }
 
-                    zombie.Hit(5);
+        if (!_isAttack)
+        {
+            return;
+        }
+
+        if (SpatialBridge.GetIsSceneInitialized())
+        {
+            _playerPosition = SpatialBridge.actorService.localActor.avatar.position;
+        }
+        else
+        {
+            _playerPosition = transform.position;
+        }
+
+        Collider[] colliders = Physics.OverlapSphere(_playerPosition, _radius, _layerMask);
+
+        // Sort colliders by distance
+        System.Array.Sort(colliders, (a, b) =>
+        {
+            float distanceA = Vector3.Distance(a.transform.position, _playerPosition);
+            float distanceB = Vector3.Distance(b.transform.position, _playerPosition);
+            return distanceA.CompareTo(distanceB);
+        });
+
+        int colliderIndex = 0;
+        for (int i = 0; i < _lineRenderers.Length; i++)
+        {
+            _lineRenderers[i].SetPosition(0, _playerPosition + Vector3.up * 0.5f);
+
+            if (_lineRendererTimers[i] <= 0f)
+            {
+                bool isHit = false;
+                for (int j = colliderIndex; j < colliders.Length; j++)
+                {
+                    colliderIndex++;
+                    if (colliders[j].TryGetComponent(out ZombieBehaviour zombie))
+                    {
+                        if (zombie.readyToHit)
+                        {
+                            zombie.Hit(10);
+                            isHit = true;
+                            _lineRenderers[i].SetPosition(1, new Vector3(zombie.transform.position.x, 0.5f, zombie.transform.position.z));
+                            _lineRendererTimers[i] = 0.02f;
+                        }
+                        break;
+                    }
                 }
+                _lineRenderers[i].enabled = isHit;
+            }
+            else
+            {
+                _lineRendererTimers[i] -= Time.deltaTime;
             }
         }
-    }
-
-    private IEnumerator LineCoroutine(ZombieBehaviour zombie)
-    {
-        _lineRenderer.enabled = true;
-        _lineRenderer.SetPosition(1, new Vector3(zombie.transform.position.x, 0.5f, zombie.transform.position.z));
-        yield return new WaitForSeconds(0.05f);
-        _lineRenderer.enabled = false;
     }
 }

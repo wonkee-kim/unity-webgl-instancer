@@ -76,10 +76,10 @@ MonoBehaviour:
     ignore: 1
   - layer1: 7
     layer2: 29
-    ignore: 0
+    ignore: 1
   - layer1: 7
     layer2: 30
-    ignore: 0
+    ignore: 1
   - layer1: 7
     layer2: 31
     ignore: 0

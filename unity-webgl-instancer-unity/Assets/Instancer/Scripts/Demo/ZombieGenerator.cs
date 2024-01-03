@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class ZombieGenerator : MonoBehaviour
 {
+    private const int MAX_ZOMBIE_COUNT = 1000;
+
     [SerializeField] private GameObject _zombiePrefab;
-    private List<ZombieBehaviour> _zombiesPool = new List<ZombieBehaviour>();
+    private List<ZombieBehaviour> _zombiesPool = new List<ZombieBehaviour>(MAX_ZOMBIE_COUNT);
 
     private const float SPAWN_TIME = 0.1f;
     private const float SPAWN_RADIUS = 30f;
@@ -14,12 +16,13 @@ public class ZombieGenerator : MonoBehaviour
 
     private void Start()
     {
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < MAX_ZOMBIE_COUNT; i++)
         {
             GameObject zombie = Instantiate(_zombiePrefab, transform);
             zombie.SetActive(false);
             _zombiesPool.Add(zombie.GetComponent<ZombieBehaviour>());
         }
+        SpawnZombie(100);
     }
 
     private void Update()
@@ -40,15 +43,18 @@ public class ZombieGenerator : MonoBehaviour
             spawnPosition += Player.position;
 
             ZombieBehaviour zombie = _zombiesPool.Find(z => !z.gameObject.activeSelf);
-            if (zombie == null)
-            {
-                GameObject zombieObject = Instantiate(_zombiePrefab, spawnPosition, Quaternion.identity, transform);
-                zombie = zombieObject.GetComponent<ZombieBehaviour>();
-                _zombiesPool.Add(zombie);
-            }
+            // if (zombie == null)
+            // {
+            //     GameObject zombieObject = Instantiate(_zombiePrefab, spawnPosition, Quaternion.identity, transform);
+            //     zombie = zombieObject.GetComponent<ZombieBehaviour>();
+            //     _zombiesPool.Add(zombie);
+            // }
 
-            zombie.Spawn(spawnPosition);
-            zombie.gameObject.SetActive(true);
+            if (zombie != null)
+            {
+                zombie.Spawn(spawnPosition);
+                zombie.gameObject.SetActive(true);
+            }
         }
     }
 }
