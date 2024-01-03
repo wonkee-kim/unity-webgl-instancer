@@ -11,8 +11,8 @@ TagManager:
   - 
   - Water
   - UI
-  - CustomLayer1
-  - CustomLayer2
+  - PlayerSight
+  - Enemy
   - CustomLayer3
   - CustomLayer4
   - CustomLayer5
