@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -6,6 +7,12 @@ namespace Instancer
     [CreateAssetMenu(fileName = "InstancerObject", menuName = "Instancer/InstancerObject", order = 1)]
     public class InstancerObject : ScriptableObject
     {
+        public enum InstanceMode
+        {
+            DrawMeshInstancedProcedural,
+            DrawMeshInstanced,
+        }
+
         [Header("Instancer Object")]
         public Mesh mesh;
         public Material material;
@@ -17,8 +24,12 @@ namespace Instancer
         public string customColorPropertyName = "_CustomColors"; // Vector4
         public string customValuePropertyName = "_CustomValues"; // Vector4
 
+        [Header("Instance Settings")]
+        public InstanceMode instanceMode = InstanceMode.DrawMeshInstancedProcedural;
+        [HideInInspector] public MaterialPropertyBlock[] materialPropertyBlocks; // Only for DrawMeshInstanced
+        [HideInInspector] public Material[] materials; // Only for DrawMeshInstancedProcedural
+
         [Header("Render Settings")]
-        public MaterialPropertyBlock[] materialPropertyBlocks;
         public ShadowCastingMode shadowCastingMode = ShadowCastingMode.On;
         public bool receiveShadows = true;
         public int layer = 0;

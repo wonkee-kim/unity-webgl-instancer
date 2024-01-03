@@ -13,11 +13,23 @@ MonoBehaviour:
   m_Name: InstancerObject_zombie
   m_EditorClassIdentifier: 
   mesh: {fileID: -6368570085644584951, guid: 74dd56860cc2445c49ce466241988780, type: 3}
-  material: {fileID: 2100000, guid: 1270265701ade4677a184ad0d5f72321, type: 2}
+  material: {fileID: 2100000, guid: d5c04757060ab472ebac5524dd8e115f, type: 2}
   useCustomColor: 1
   useCustomValue: 1
   customColorPropertyName: _CustomColors
   customValuePropertyName: _CustomValues
+  instanceMode: 0
+  materials:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   shadowCastingMode: 1
   receiveShadows: 1
   layer: 0
