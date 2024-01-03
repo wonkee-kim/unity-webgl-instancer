@@ -128,7 +128,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4412201124709666388}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 041094942f1b04d4987f746e5671c2de, type: 3}
   m_Name: 
@@ -136,7 +136,7 @@ MonoBehaviour:
   instancerObject: {fileID: 11400000, guid: 795c394baeaa8431b97a15a53c360525, type: 2}
   _renderer: {fileID: 2754995690958073729}
   customColor: {x: 1, y: 1, z: 1, w: 1}
-  customValue: {x: 0, y: 0, z: 0, w: 0}
+  customValue: {x: 0, y: 0, z: 1, w: 0}
 --- !u!114 &2125645767888740764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,3 +151,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _instancerRenderer: {fileID: 287351286}
   _rigidbody: {fileID: 5871502947160506079}
+  readyToHit: 1

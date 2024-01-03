@@ -12,7 +12,7 @@ namespace Instancer
 
         private static Dictionary<string, int> _materialPropertyIDs = new Dictionary<string, int>();
 
-        private const int MAX_INSTANCE_COUNT_PER_BATCH = 256;
+        private const int MAX_INSTANCE_COUNT_PER_BATCH = 512;
         private Dictionary<InstancerObject, List<InstancerRenderer>> _instancerRenderers = new Dictionary<InstancerObject, List<InstancerRenderer>>();
 
         public bool useInstancer = true;
@@ -167,8 +167,9 @@ namespace Instancer
                 int endIndex = Mathf.Min(startIndex + MAX_INSTANCE_COUNT_PER_BATCH, totalInstanceCount);
                 int instanceCount = endIndex - startIndex;
 
-                Vector4[] customColors = new Vector4[instanceCount];
-                Vector4[] customValues = new Vector4[instanceCount];
+                // Array size should be max count to match to the shader array size.
+                Vector4[] customColors = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
+                Vector4[] customValues = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
                 for (int j = 0; j < instanceCount; j++)
                 {
                     InstancerRenderer instancerRenderer = instancerRenderers[startIndex + j];
@@ -189,9 +190,7 @@ namespace Instancer
                 }
                 instancer.materials[i].SetVectorArray(_materialPropertyIDs[instancer.customColorPropertyName], customColors);
                 instancer.materials[i].SetVectorArray(_materialPropertyIDs[instancer.customValuePropertyName], customValues);
-                instancer.materials[i].EnableKeyword("PROCEDURAL_INSTANCING_ON");
-                instancer.materials[i].EnableKeyword("UNITY_PROCEDURAL_INSTANCING_ENABLED");
-                instancer.materials[i].EnableKeyword("PROCEDURAL_INSTANCING_ON");
+                instancer.materials[i].SetVector("_TargetPosition", Vector3.zero);
 
                 Graphics.DrawMeshInstancedProcedural(
                     mesh: instancer.mesh,

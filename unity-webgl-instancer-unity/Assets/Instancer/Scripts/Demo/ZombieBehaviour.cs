@@ -16,8 +16,11 @@ public class ZombieBehaviour : MonoBehaviour
 
     private void Update()
     {
-        Vector3 direction = (Player.position - transform.position).normalized;
-        _rigidbody.velocity = direction * _speed;
+        if (Player.instance != null)
+        {
+            Vector3 direction = (Player.position - transform.position).normalized;
+            _rigidbody.velocity = direction * _speed;
+        }
 
         _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, emission);
     }
@@ -28,6 +31,8 @@ public class ZombieBehaviour : MonoBehaviour
         transform.position = position;
         _rigidbody.velocity = Vector3.zero;
         _health = 10;
+
+        _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, emission);
     }
 
     public void Hit(int damage)

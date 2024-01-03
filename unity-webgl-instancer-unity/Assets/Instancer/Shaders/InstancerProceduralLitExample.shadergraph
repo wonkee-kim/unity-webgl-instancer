@@ -182,7 +182,11 @@
         }
     ],
     "m_GroupDatas": [],
-    "m_StickyNoteDatas": [],
+    "m_StickyNoteDatas": [
+        {
+            "m_Id": "be08ef4f15874f289857ea85cf1931d7"
+        }
+    ],
     "m_Edges": [
         {
             "m_OutputSlot": {
@@ -390,6 +394,20 @@
             "m_InputSlot": {
                 "m_Node": {
                     "m_Id": "308f0f7463374757b77a13a428711cdb"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "50fc9af49fe24b17a373460c247ab9e1"
+                },
+                "m_SlotId": 0
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "fcc18d042c964a55a64cfa7587cdae95"
                 },
                 "m_SlotId": 0
             }
@@ -2297,10 +2315,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -1812.000244140625,
+            "x": -1746.5001220703125,
             "y": -725.5,
             "width": 109.5001220703125,
-            "height": 77.00006103515625
+            "height": 77.0
         }
     },
     "m_Slots": [
@@ -4445,6 +4463,26 @@
         "w": 0.0
     },
     "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.StickyNoteData",
+    "m_ObjectId": "be08ef4f15874f289857ea85cf1931d7",
+    "m_Title": "Not working",
+    "m_Content": "Instance ID works only with DrawMeshInstanced, not DrawMeshInstancedProcedural (It seems any instancing keyword is enabled on webgl.",
+    "m_TextSize": 0,
+    "m_Theme": 0,
+    "m_Position": {
+        "serializedVersion": "2",
+        "x": -1825.0,
+        "y": -894.0,
+        "width": 200.0,
+        "height": 160.0
+    },
+    "m_Group": {
+        "m_Id": ""
+    }
 }
 
 {
