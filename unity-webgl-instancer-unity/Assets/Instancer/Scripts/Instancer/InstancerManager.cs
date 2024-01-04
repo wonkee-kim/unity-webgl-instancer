@@ -11,9 +11,16 @@ namespace Instancer
         public static InstancerManager instance { get; private set; }
 
         private static Dictionary<string, int> _materialPropertyIDs = new Dictionary<string, int>();
+        private static readonly int PROP_TARGET_POSITION = Shader.PropertyToID("_TargetPosition");
 
-        private const int MAX_INSTANCE_COUNT_PER_BATCH = 512;
         private Dictionary<InstancerObject, List<InstancerRenderer>> _instancerRenderers = new Dictionary<InstancerObject, List<InstancerRenderer>>();
+
+        private const int MAX_INSTANCE_COUNT_PER_BATCH = 1000;
+
+        // Array size should be max count to match to the shader array size.
+        private Matrix4x4[] _matrices = new Matrix4x4[MAX_INSTANCE_COUNT_PER_BATCH];
+        private Vector4[] _customColors = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
+        private Vector4[] _customValues = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
 
         public bool useInstancer = true;
         private bool _useInstancerCached = true;
@@ -82,47 +89,46 @@ namespace Instancer
 
             int batchCount = Mathf.CeilToInt((float)totalInstanceCount / MAX_INSTANCE_COUNT_PER_BATCH);
             instancer.materialPropertyBlocks = new MaterialPropertyBlock[batchCount];
+
+            if (!_materialPropertyIDs.ContainsKey(instancer.customColorPropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.customColorPropertyName, Shader.PropertyToID(instancer.customColorPropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.customValuePropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
+            }
+
             for (int i = 0; i < batchCount; i++)
             {
                 int startIndex = i * MAX_INSTANCE_COUNT_PER_BATCH;
                 int endIndex = Mathf.Min(startIndex + MAX_INSTANCE_COUNT_PER_BATCH, totalInstanceCount);
                 int instanceCount = endIndex - startIndex;
 
-                Matrix4x4[] matrices = new Matrix4x4[instanceCount];
-                Vector4[] customColors = new Vector4[instanceCount];
-                Vector4[] customValues = new Vector4[instanceCount];
                 for (int j = 0; j < instanceCount; j++)
                 {
                     InstancerRenderer instancerRenderer = instancerRenderers[startIndex + j];
-                    matrices[j] = instancerRenderer.transform.localToWorldMatrix;
+                    _matrices[j] = instancerRenderer.transform.localToWorldMatrix;
                     if (instancer.useCustomData)
                     {
-                        customColors[j] = instancerRenderer.customColor;
-                        customValues[j] = instancerRenderer.customValue;
+                        _customColors[j] = instancerRenderer.customColor;
+                        _customValues[j] = instancerRenderer.customValue;
                     }
                 }
 
                 if (instancer.useCustomData)
                 {
-                    if (!_materialPropertyIDs.ContainsKey(instancer.customColorPropertyName))
-                    {
-                        _materialPropertyIDs.Add(instancer.customColorPropertyName, Shader.PropertyToID(instancer.customColorPropertyName));
-                    }
-                    if (!_materialPropertyIDs.ContainsKey(instancer.customValuePropertyName))
-                    {
-                        _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
-                    }
                     instancer.materialPropertyBlocks[i] = new MaterialPropertyBlock();
-                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customColorPropertyName], customColors);
-                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customValuePropertyName], customValues);
+                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customColorPropertyName], _customColors);
+                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customValuePropertyName], _customValues);
                 }
 
                 Graphics.DrawMeshInstanced(
                     mesh: instancer.mesh,
                     submeshIndex: 0,
                     material: instancer.material,
-                    matrices: matrices,
-                    count: matrices.Length,
+                    matrices: _matrices,
+                    count: _matrices.Length,
                     properties: instancer.useCustomData ? instancer.materialPropertyBlocks[i] : null,
                     castShadows: instancer.shadowCastingMode,
                     receiveShadows: instancer.receiveShadows,
@@ -161,36 +167,53 @@ namespace Instancer
                 }
             }
 
+            // Cache values, to avoid getting values in the loop.
+            bool useCustomColor = instancer.useCustomColor;
+            bool useCustomValue = instancer.useCustomValue;
+            bool useCustomData = instancer.useCustomData;
+            if (!_materialPropertyIDs.ContainsKey(instancer.customColorPropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.customColorPropertyName, Shader.PropertyToID(instancer.customColorPropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.customValuePropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
+            }
+            int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
+            int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
+            Vector3 targetPosition = (Player.instance != null) ? Player.position : Vector3.zero;
+
             for (int i = 0; i < batchCount; i++)
             {
                 int startIndex = i * MAX_INSTANCE_COUNT_PER_BATCH;
                 int endIndex = Mathf.Min(startIndex + MAX_INSTANCE_COUNT_PER_BATCH, totalInstanceCount);
                 int instanceCount = endIndex - startIndex;
 
-                // Array size should be max count to match to the shader array size.
-                Vector4[] customColors = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
-                Vector4[] customValues = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
-                for (int j = 0; j < instanceCount; j++)
+                if (useCustomData)
                 {
-                    InstancerRenderer instancerRenderer = instancerRenderers[startIndex + j];
-                    if (instancer.useCustomData)
+                    for (int j = 0; j < instanceCount; j++)
                     {
-                        customColors[j] = instancerRenderer.customColor;
-                        customValues[j] = instancerRenderer.customValue;
+                        InstancerRenderer instancerRenderer = instancerRenderers[startIndex + j];
+                        if (useCustomColor)
+                        {
+                            _customColors[j] = instancerRenderer.customColor;
+                        }
+                        if (useCustomValue)
+                        {
+                            _customValues[j] = instancerRenderer.customValue;
+                        }
                     }
                 }
 
-                if (!_materialPropertyIDs.ContainsKey(instancer.customColorPropertyName))
+                if (useCustomColor)
                 {
-                    _materialPropertyIDs.Add(instancer.customColorPropertyName, Shader.PropertyToID(instancer.customColorPropertyName));
+                    instancer.materials[i].SetVectorArray(customColorPropertyID, _customColors);
                 }
-                if (!_materialPropertyIDs.ContainsKey(instancer.customValuePropertyName))
+                if (useCustomValue)
                 {
-                    _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
+                    instancer.materials[i].SetVectorArray(customValuePropertyID, _customValues);
                 }
-                instancer.materials[i].SetVectorArray(_materialPropertyIDs[instancer.customColorPropertyName], customColors);
-                instancer.materials[i].SetVectorArray(_materialPropertyIDs[instancer.customValuePropertyName], customValues);
-                instancer.materials[i].SetVector("_TargetPosition", Vector3.zero);
+                instancer.materials[i].SetVector(PROP_TARGET_POSITION, targetPosition);
 
                 Graphics.DrawMeshInstancedProcedural(
                     mesh: instancer.mesh,

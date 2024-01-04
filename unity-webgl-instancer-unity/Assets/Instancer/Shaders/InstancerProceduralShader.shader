@@ -49,8 +49,8 @@ Shader "Instancer/InstancerProceduralShader"
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
-                float4 _CustomColors[512];
-                float4 _CustomValues[512];
+                float4 _CustomColors[1000];
+                float4 _CustomValues[1000];
                 float3 _TargetPosition;
             CBUFFER_END
 
@@ -80,7 +80,7 @@ Shader "Instancer/InstancerProceduralShader"
 
                 // float4 customColor = _CustomColors[IN.instanceID];
                 // float4 customValue = _CustomValues[IN.instanceID];
-                float4 customColor = _CustomColors[instanceID];
+                // float4 customColor = _CustomColors[instanceID];
                 float4 customValue = _CustomValues[instanceID];
 
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
@@ -104,7 +104,8 @@ Shader "Instancer/InstancerProceduralShader"
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.ambient = ambient;
                 OUT.diffuse = diffuse;
-                OUT.color = customColor;
+                // OUT.color = customColor;
+                OUT.color = (float4)1;
                 OUT.emission = customValue.w;
                 OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
                 return OUT;
@@ -159,8 +160,8 @@ Shader "Instancer/InstancerProceduralShader"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/SimpleLitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
 
-            half4 _CustomColors[512];
-            half4 _CustomValues[512];
+            half4 _CustomColors[1000];
+            half4 _CustomValues[1000];
             float3 _TargetPosition;
 
             float3 Unity_RotateAboutAxis_Radians_float(float3 In, float3 Axis, float Rotation)
