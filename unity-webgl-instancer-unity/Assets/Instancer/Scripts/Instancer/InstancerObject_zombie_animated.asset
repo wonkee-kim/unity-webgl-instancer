@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4fb4459eb067470a9038e12587d0f08, type: 3}
   m_Name: InstancerObject_zombie_animated
   m_EditorClassIdentifier: 
-  mesh: {fileID: -6368570085644584951, guid: 74dd56860cc2445c49ce466241988780, type: 3}
-  material: {fileID: 2100000, guid: d199fe82ad2804cd08a9e13ac77ad9e6, type: 2}
+  mesh: {fileID: -5635949633440526746, guid: 9dd8e79b916f842fea28674f93f94463, type: 3}
+  material: {fileID: 2100000, guid: 2358f7ed8f0a943f0b32bcfd8861c335, type: 2}
   useCustomColor: 0
   useCustomValue: 1
   customColorPropertyName: _CustomColors
@@ -21,6 +21,8 @@ MonoBehaviour:
   customUniformValues:
   - propertyName: _TargetPosition
     value: {x: 0, y: 0, z: 0, w: 0}
+  animationDataObject: {fileID: 11400000, guid: 911cec95ec1a44b209400567c7cb8ffb,
+    type: 2}
   instanceMode: 0
   materials:
   - {fileID: 0}

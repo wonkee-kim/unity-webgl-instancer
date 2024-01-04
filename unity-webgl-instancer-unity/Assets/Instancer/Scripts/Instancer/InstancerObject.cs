@@ -34,6 +34,9 @@ namespace Instancer
         [Space(5), Tooltip("Use this to set custom values to the material. Not per instance.")]
         public CustomUniformValue[] customUniformValues;
 
+        [Header("Animation Data")]
+        public InstancerAnimationDataObject animationDataObject;
+
         [Header("Instance Settings")]
         public InstanceMode instanceMode = InstanceMode.DrawMeshInstancedProcedural;
         [HideInInspector] public MaterialPropertyBlock[] materialPropertyBlocks; // Only for DrawMeshInstanced

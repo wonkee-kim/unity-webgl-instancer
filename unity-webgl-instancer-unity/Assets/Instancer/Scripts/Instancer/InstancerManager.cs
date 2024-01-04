@@ -197,6 +197,29 @@ namespace Instancer
             int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
             int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
 
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexturePropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexturePropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexturePropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexturePropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexturePropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexturePropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.texelSizePropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.texelSizePropertyName, Shader.PropertyToID(instancer.animationDataObject.texelSizePropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.animationLengthInvPropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.animationLengthInvPropertyName, Shader.PropertyToID(instancer.animationDataObject.animationLengthInvPropertyName));
+            }
+            int positionTexturePropertyID = _materialPropertyIDs[instancer.animationDataObject.positionTexturePropertyName];
+            int normalTexturePropertyID = _materialPropertyIDs[instancer.animationDataObject.normalTexturePropertyName];
+            int texelSizePropertyID = _materialPropertyIDs[instancer.animationDataObject.texelSizePropertyName];
+            int animationLengthInvPropertyID = _materialPropertyIDs[instancer.animationDataObject.animationLengthInvPropertyName];
+            float texelSize = instancer.animationDataObject.texelSize;
+            float animationLengthInv = instancer.animationDataObject.animationLengthInv;
+
             foreach (var customUniformValue in instancer.customUniformValues)
             {
                 if (!_materialPropertyIDs.ContainsKey(customUniformValue.propertyName))
@@ -227,6 +250,7 @@ namespace Instancer
                     }
                 }
 
+                // Set custom data
                 if (useCustomColor)
                 {
                     instancer.materials[i].SetVectorArray(customColorPropertyID, _customColors);
@@ -235,10 +259,18 @@ namespace Instancer
                 {
                     instancer.materials[i].SetVectorArray(customValuePropertyID, _customValues);
                 }
-
                 foreach (var customUniformValue in instancer.customUniformValues)
                 {
                     instancer.materials[i].SetVector(_materialPropertyIDs[customUniformValue.propertyName], customUniformValue.value);
+                }
+
+                // Set animation data
+                if (instancer.animationDataObject != null)
+                {
+                    instancer.materials[i].SetTexture(positionTexturePropertyID, instancer.animationDataObject.positionTexture);
+                    instancer.materials[i].SetTexture(normalTexturePropertyID, instancer.animationDataObject.normalTexture);
+                    instancer.materials[i].SetFloat(texelSizePropertyID, texelSize);
+                    instancer.materials[i].SetFloat(animationLengthInvPropertyID, animationLengthInv);
                 }
 
                 Graphics.DrawMeshInstancedProcedural(
