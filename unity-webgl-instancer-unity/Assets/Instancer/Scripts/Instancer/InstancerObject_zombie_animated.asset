@@ -18,6 +18,9 @@ MonoBehaviour:
   useCustomValue: 1
   customColorPropertyName: _CustomColors
   customValuePropertyName: _CustomValues
+  customUniformValues:
+  - propertyName: _TargetPosition
+    value: {x: 0, y: 0, z: 0, w: 0}
   instanceMode: 0
   materials:
   - {fileID: 0}

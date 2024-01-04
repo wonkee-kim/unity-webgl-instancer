@@ -13,6 +13,13 @@ namespace Instancer
             DrawMeshInstanced,
         }
 
+        [System.Serializable]
+        public struct CustomUniformValue
+        {
+            public string propertyName;
+            public Vector4 value;
+        }
+
         [Header("Instancer Object")]
         public Mesh mesh;
         public Material material;
@@ -23,6 +30,9 @@ namespace Instancer
         public bool useCustomData => useCustomColor || useCustomValue;
         public string customColorPropertyName = "_CustomColors"; // Vector4
         public string customValuePropertyName = "_CustomValues"; // Vector4
+
+        [Space(5), Tooltip("Use this to set custom values to the material. Not per instance.")]
+        public CustomUniformValue[] customUniformValues;
 
         [Header("Instance Settings")]
         public InstanceMode instanceMode = InstanceMode.DrawMeshInstancedProcedural;

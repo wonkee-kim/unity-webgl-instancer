@@ -98,6 +98,16 @@ namespace Instancer
             {
                 _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
             }
+            int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
+            int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
+
+            foreach (var customUniformValue in instancer.customUniformValues)
+            {
+                if (!_materialPropertyIDs.ContainsKey(customUniformValue.propertyName))
+                {
+                    _materialPropertyIDs.Add(customUniformValue.propertyName, Shader.PropertyToID(customUniformValue.propertyName));
+                }
+            }
 
             for (int i = 0; i < batchCount; i++)
             {
@@ -119,8 +129,13 @@ namespace Instancer
                 if (instancer.useCustomData)
                 {
                     instancer.materialPropertyBlocks[i] = new MaterialPropertyBlock();
-                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customColorPropertyName], _customColors);
-                    instancer.materialPropertyBlocks[i].SetVectorArray(_materialPropertyIDs[instancer.customValuePropertyName], _customValues);
+                    instancer.materialPropertyBlocks[i].SetVectorArray(customColorPropertyID, _customColors);
+                    instancer.materialPropertyBlocks[i].SetVectorArray(customValuePropertyID, _customValues);
+                }
+
+                foreach (var customUniformValue in instancer.customUniformValues)
+                {
+                    instancer.materialPropertyBlocks[i].SetVector(_materialPropertyIDs[customUniformValue.propertyName], customUniformValue.value);
                 }
 
                 Graphics.DrawMeshInstanced(
@@ -181,7 +196,14 @@ namespace Instancer
             }
             int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
             int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
-            Vector3 targetPosition = (Player.instance != null) ? Player.position : Vector3.zero;
+
+            foreach (var customUniformValue in instancer.customUniformValues)
+            {
+                if (!_materialPropertyIDs.ContainsKey(customUniformValue.propertyName))
+                {
+                    _materialPropertyIDs.Add(customUniformValue.propertyName, Shader.PropertyToID(customUniformValue.propertyName));
+                }
+            }
 
             for (int i = 0; i < batchCount; i++)
             {
@@ -213,7 +235,11 @@ namespace Instancer
                 {
                     instancer.materials[i].SetVectorArray(customValuePropertyID, _customValues);
                 }
-                instancer.materials[i].SetVector(PROP_TARGET_POSITION, targetPosition);
+
+                foreach (var customUniformValue in instancer.customUniformValues)
+                {
+                    instancer.materials[i].SetVector(_materialPropertyIDs[customUniformValue.propertyName], customUniformValue.value);
+                }
 
                 Graphics.DrawMeshInstancedProcedural(
                     mesh: instancer.mesh,

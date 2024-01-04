@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SpatialSys.UnitySDK;
+using Instancer;
 
 public class Player : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class Player : MonoBehaviour
     private float[] _lineRendererTimers;
 
     private bool _isAttack = true;
+
+    [SerializeField] private InstancerObject _instancerObject;
 
     private void Awake()
     {
@@ -59,6 +62,7 @@ public class Player : MonoBehaviour
         {
             _playerPosition = transform.position;
         }
+        _instancerObject.customUniformValues[0].value = new Vector4(_playerPosition.x, _playerPosition.y, _playerPosition.z, 0f);
 
         Collider[] colliders = Physics.OverlapSphere(_playerPosition, _radius, _layerMask);
 
