@@ -89,9 +89,13 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT); // Have this if you want to use UNITY_ACCESS_INSTANCED_PROP in fragment shader
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
+                // Custom Data
+                float4 customColor = _CustomColors[instanceID];
+                float4 customValue = _CustomValues[instanceID];
+
                 // Get position and normal (Animation)
                 float time = _Time.y * _AnimLengthInv;
-                time += instanceID * 0.123412; // randomize
+                time += customColor.a * 172.827412; // randomize
                 time = fmod(time, 1.0); // saturate(time) if it's not looping
 
                 float2 uv;
@@ -101,10 +105,7 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 float3 positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos, sampler_AnimTexPos, uv, 0).xyz;
                 float3 normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm, sampler_AnimTexNorm, uv, 0).xyz;
 
-                // Custom Data
-                // float4 customColor = _CustomColors[instanceID];
-                float4 customValue = _CustomValues[instanceID];
-
+                // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
                 float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
 
@@ -126,8 +127,7 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
                 OUT.ambient = ambient;
                 OUT.diffuse = diffuse;
-                // OUT.color = customColor;
-                OUT.color = (float4)1;
+                OUT.color = customColor;
                 OUT.emission = customValue.w;
                 OUT.fogCoord = ComputeFogFactor(OUT.positionCS.z);
                 return OUT;

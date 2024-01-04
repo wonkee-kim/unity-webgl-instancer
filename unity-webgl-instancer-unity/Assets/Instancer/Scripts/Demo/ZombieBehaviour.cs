@@ -32,6 +32,8 @@ public class ZombieBehaviour : MonoBehaviour
         _rigidbody.velocity = Vector3.zero;
         _health = 10;
 
+        Color color = Color.HSVToRGB(Random.Range(0.0f, 0.2f) - 0.1f, Random.Range(0.8f, 1f), Random.Range(0.2f, 1f));
+        _instancerRenderer.customColor = new Vector4(color.r, color.g, color.b, Random.Range(0f, 1f));
         _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, emission);
     }
 

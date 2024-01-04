@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mesh: {fileID: -5635949633440526746, guid: 9dd8e79b916f842fea28674f93f94463, type: 3}
   material: {fileID: 2100000, guid: 2358f7ed8f0a943f0b32bcfd8861c335, type: 2}
-  useCustomColor: 0
+  useCustomColor: 1
   useCustomValue: 1
   customColorPropertyName: _CustomColors
   customValuePropertyName: _CustomValues

@@ -37,5 +37,5 @@ Material:
     - _AnimLengthInv: 0
     - _TexelSize: 0.002
     m_Colors:
-    - _BaseColor: {r: 1, g: 0.05882353, b: 0.18431373, a: 1}
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
