@@ -19,10 +19,10 @@ ModelImporter:
     rigImportErrors: 
     rigImportWarnings: 
     animationImportErrors: 
-    animationImportWarnings: "\nClip 'Armature|Armature|mixamo.com|Layer0' has import
-      animation warnings that might lower retargeting quality:\nNote: Activate translation
-      DOF on avatar to improve retargeting quality.\n\t'mixamorig:Spine' is inbetween
-      humanoid transforms and has rotation animation that will be discarded.\n\t'mixamorig:Neck'
+    animationImportWarnings: "\nClip 'Zombie_Running_Root|Armature|mixamo.com|Layer0'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'mixamorig:Spine'
+      is inbetween humanoid transforms and has rotation animation that will be discarded.\n\t'mixamorig:Neck'
       is inbetween humanoid transforms and has rotation animation that will be discarded.\n"
     animationRetargetingWarnings: 
     animationDoRetargetingWarnings: 0
@@ -48,7 +48,7 @@ ModelImporter:
       cycleOffset: 0
       loop: 0
       hasAdditiveReferencePose: 0
-      loopTime: 0
+      loopTime: 1
       loopBlend: 0
       loopBlendOrientation: 1
       loopBlendPositionY: 0
@@ -263,13 +263,13 @@ ModelImporter:
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
-    - name: Armature
+    - name: Zombie_Running_Root
       parentName: zombie_running(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0.000000081460335, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: Armature
+      parentName: Zombie_Running_Root
       position: {x: -0.001689867, y: 1.0708864, z: 0.013363221}
       rotation: {x: 0.006458365, y: 2.7876865e-10, z: -0.0000002531384, w: 0.99997914}
       scale: {x: 0.99999994, y: 0.9999998, z: 0.99999976}
@@ -664,7 +664,7 @@ ModelImporter:
       position: {x: -0, y: 0.09278135, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
-    - name: Beta_Surface
+    - name: Zombie_Running
       parentName: zombie_running(Clone)
       position: {x: 0.000000005935526, y: -5.878865e-11, z: -0.0000000066780648}
       rotation: {x: 0.00000008146034, y: 8.944668e-19, z: -2.3111161e-33, w: 1}

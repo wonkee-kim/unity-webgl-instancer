@@ -39,7 +39,7 @@ public class ZombieBehaviour : MonoBehaviour
     {
         readyToHit = false;
         _health -= damage;
-        transform.position += (transform.position - Player.position).normalized * 0.2f;
+        transform.position += (transform.position - Player.position).normalized * 0.5f;
 
         if (_hitCoroutine != null)
         {

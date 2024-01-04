@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4fb4459eb067470a9038e12587d0f08, type: 3}
+  m_Name: InstancerObject_zombie_static
+  m_EditorClassIdentifier: 
+  mesh: {fileID: -6368570085644584951, guid: 74dd56860cc2445c49ce466241988780, type: 3}
+  material: {fileID: 2100000, guid: d199fe82ad2804cd08a9e13ac77ad9e6, type: 2}
+  useCustomColor: 1
+  useCustomValue: 1
+  customColorPropertyName: _CustomColors
+  customValuePropertyName: _CustomValues
+  instanceMode: 0
+  materials:
+  - {fileID: 0}
+  shadowCastingMode: 1
+  receiveShadows: 1
+  layer: 0
+  lightProbeUsage: 1
