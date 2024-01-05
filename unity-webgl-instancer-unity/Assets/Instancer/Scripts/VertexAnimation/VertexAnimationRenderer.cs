@@ -20,9 +20,7 @@ public class VertexAnimationRenderer : MonoBehaviour
     [SerializeField] private SkinnedMeshRenderer _skinnedMeshRenderer; // original
     [SerializeField] private MeshRenderer _meshRenderer; // copy
     [SerializeField] private MeshFilter _meshFilter;
-    public Renderer renderer => useVertexAnimation ? _meshRenderer : _skinnedMeshRenderer;
-
-    public bool useVertexAnimation = true;
+    public Renderer renderer => _meshRenderer;
 
     // Cache property IDs
     private int[] positionTexturePropertyIDs;
@@ -148,9 +146,9 @@ public class VertexAnimationRenderer : MonoBehaviour
             }
         }
         _meshFilter.mesh = animationDataObject.mesh;
-        _meshRenderer.enabled = useVertexAnimation;
-        _skinnedMeshRenderer.enabled = !useVertexAnimation;
-        _animator.enabled = !useVertexAnimation;
+        _meshRenderer.enabled = true;
+        _skinnedMeshRenderer.enabled = false;
+        _animator.enabled = false;
 
         PlayAnimationClip(0, initialize: true); // Initialize parameters
 

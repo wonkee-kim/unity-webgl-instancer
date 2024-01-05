@@ -47,20 +47,6 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            _isAttack = !_isAttack;
-        }
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            _virtualCamera.gameObject.SetActive(!_virtualCamera.gameObject.activeSelf);
-        }
-
-        if (!_isAttack)
-        {
-            return;
-        }
-
 #if !UNITY_EDITOR
         if (SpatialBridge.GetIsSceneInitialized())
         {
@@ -74,6 +60,15 @@ public class Player : MonoBehaviour
             _playerForward = transform.forward;
         }
         _instancerObject.customUniformValues[0].value = new Vector4(_playerPosition.x, _playerPosition.y, _playerPosition.z, 0f);
+
+        if (Input.GetKeyDown(KeyCode.J))
+        {
+            _isAttack = !_isAttack;
+        }
+        if (!_isAttack)
+        {
+            return;
+        }
 
         Collider[] colliders = Physics.OverlapSphere(_playerPosition, _radius, _layerMask);
 
