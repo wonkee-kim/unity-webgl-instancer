@@ -36,6 +36,7 @@ namespace Instancer
 
         [Header("Animation Data")]
         public InstancerAnimationDataObject animationDataObject;
+        public bool useAnimation => animationDataObject != null && animationDataObject.animationClipDatas.Length > 0;
 
         [Header("Instance Settings")]
         public InstanceMode instanceMode = InstanceMode.DrawMeshInstancedProcedural;

@@ -5,10 +5,16 @@ Shader "Instancer/InstancerProceduralAnimationShader"
         _BaseColor ("Base color", Color) = (1,1,1,1)
         _BaseMap ("Texture", 2D) = "white" {}
 
-        _AnimTexPos ("Animation Texture Position", 2D) = "white" {}
-        _AnimTexNorm ("Animation Texture Normal", 2D) = "white" {}
+        _AnimTexPos0 ("Animation Texture Position 0", 2D) = "white" {}
+        _AnimTexNorm0 ("Animation Texture Normal 0", 2D) = "white" {}
+        _AnimTexPos1 ("Animation Texture Position 1", 2D) = "white" {}
+        _AnimTexNorm1 ("Animation Texture Normal 1", 2D) = "white" {}
+        _AnimTexPos2 ("Animation Texture Position 2", 2D) = "white" {}
+        _AnimTexNorm2 ("Animation Texture Normal 2", 2D) = "white" {}
+        _AnimTexPos3 ("Animation Texture Position 3", 2D) = "white" {}
+        _AnimTexNorm3 ("Animation Texture Normal 3", 2D) = "white" {}
+
         _TexelSize ("Texel Size (1/width)", float) = 0.002
-        _AnimLengthInv ("Animation Length (Seconds, Inversed)", Float) = 1.2
     }
     SubShader
     {
@@ -51,10 +57,22 @@ Shader "Instancer/InstancerProceduralAnimationShader"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
-            TEXTURE2D(_AnimTexPos);
-            SAMPLER(sampler_AnimTexPos);
-            TEXTURE2D(_AnimTexNorm);
-            SAMPLER(sampler_AnimTexNorm);
+            TEXTURE2D(_AnimTexPos0);
+            SAMPLER(sampler_AnimTexPos0);
+            TEXTURE2D(_AnimTexNorm0);
+            SAMPLER(sampler_AnimTexNorm0);
+            TEXTURE2D(_AnimTexPos1);
+            SAMPLER(sampler_AnimTexPos1);
+            TEXTURE2D(_AnimTexNorm1);
+            SAMPLER(sampler_AnimTexNorm1);
+            TEXTURE2D(_AnimTexPos2);
+            SAMPLER(sampler_AnimTexPos2);
+            TEXTURE2D(_AnimTexNorm2);
+            SAMPLER(sampler_AnimTexNorm2);
+            TEXTURE2D(_AnimTexPos3);
+            SAMPLER(sampler_AnimTexPos3);
+            TEXTURE2D(_AnimTexNorm3);
+            SAMPLER(sampler_AnimTexNorm3);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
@@ -64,7 +82,7 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 float3 _TargetPosition;
 
                 float _TexelSize;
-                float _AnimLengthInv;
+                float4 _AnimParams[1000]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
             CBUFFER_END
 
             float3 Unity_RotateAboutAxis_Radians_float(float3 In, float3 Axis, float Rotation)
@@ -92,18 +110,43 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 // Custom Data
                 float4 customColor = _CustomColors[instanceID];
                 float4 customValue = _CustomValues[instanceID];
+                float4 animParams = _AnimParams[instanceID]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
 
                 // Get position and normal (Animation)
-                float time = _Time.y * _AnimLengthInv;
-                time += customColor.a * 172.827412; // randomize
-                time = fmod(time, 1.0); // saturate(time) if it's not looping
+                // float time = (_GameTime - animParams.y) * animParams.z;
+                float time = (_Time.y - animParams.y) * animParams.z;
+                if(animParams.w > 0.5) // looping
+                {
+                    time += customColor.a * 172.827412; // randomize
+                    // time = fmod(time, 1.0); // looping
+                }
+                // else
+                // {
+                    //     time = saturate(time); // not looping
+                // }
 
                 float2 uv;
                 uv.x = (float(vertexID) + 0.5) * _TexelSize;
                 uv.y = time;
 
-                float3 positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos, sampler_AnimTexPos, uv, 0).xyz;
-                float3 normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm, sampler_AnimTexNorm, uv, 0).xyz;
+                float3 positionOS;
+                float3 normalOS;
+                if(animParams.x == 1){
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm1, sampler_AnimTexNorm1, uv, 0).xyz;
+                }
+                else if(animParams.x == 2){
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm2, sampler_AnimTexNorm2, uv, 0).xyz;
+                }
+                else if(animParams.x == 3){
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm3, sampler_AnimTexNorm3, uv, 0).xyz;
+                }
+                else { // param.x == 0
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm0, sampler_AnimTexNorm0, uv, 0).xyz;
+                }
 
                 // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
@@ -182,17 +225,21 @@ Shader "Instancer/InstancerProceduralAnimationShader"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/SimpleLitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
 
-            TEXTURE2D(_AnimTexPos);
-            SAMPLER(sampler_AnimTexPos);
-            TEXTURE2D(_AnimTexNorm);
-            SAMPLER(sampler_AnimTexNorm);
+            TEXTURE2D(_AnimTexPos0);
+            SAMPLER(sampler_AnimTexPos0);
+            TEXTURE2D(_AnimTexPos1);
+            SAMPLER(sampler_AnimTexPos1);
+            TEXTURE2D(_AnimTexPos2);
+            SAMPLER(sampler_AnimTexPos2);
+            TEXTURE2D(_AnimTexPos3);
+            SAMPLER(sampler_AnimTexPos3);
 
             half4 _CustomColors[1000];
             half4 _CustomValues[1000];
             float3 _TargetPosition;
-
+            
             float _TexelSize;
-            float _AnimLengthInv;
+            float4 _AnimParams[1000]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
 
             float3 Unity_RotateAboutAxis_Radians_float(float3 In, float3 Axis, float Rotation)
             {
@@ -214,20 +261,37 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
 
+                // Custom Data
+                float4 customColor = _CustomColors[instanceID];
+                float4 customValue = _CustomValues[instanceID];
+                float4 animParams = _AnimParams[instanceID]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
+
                 // Get position and normal (Animation)
-                float time = _Time.y * _AnimLengthInv;
-                time = fmod(time, 1.0); // saturate(time) if it's not looping
+                float time = (_Time.y - animParams.y) * animParams.z;
+                if(animParams.w > 0.5) // looping
+                {
+                    time += customColor.a * 172.827412; // randomize
+                }
 
                 float2 uv;
                 uv.x = (float(vertexID) + 0.5) * _TexelSize;
                 uv.y = time;
 
-                input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos, sampler_AnimTexPos, uv, 0).xyz;
+                float3 positionOS;
+                if(animParams.x == 1){
+                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
+                }
+                else if(animParams.x == 2){
+                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
+                }
+                else if(animParams.x == 3){
+                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
+                }
+                else { // param.x == 0
+                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
+                }
 
-                // Custom Data
-                float4 customColor = _CustomColors[instanceID];
-                float4 customValue = _CustomValues[instanceID];
-
+                // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
                 float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
 

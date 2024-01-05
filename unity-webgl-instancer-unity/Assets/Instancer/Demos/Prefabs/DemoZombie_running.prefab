@@ -46,9 +46,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _skinnedMeshRenderer: {fileID: 8320379370750939582}
   _animator: {fileID: 8819043548401426381}
-  _animationClipName: zombie_running
-  _frameRate: 30
-  timer: 0
+  _animationClipNames:
+  - zombie_running
+  - FlyingBackDeath
 --- !u!1001 &3101041464594555484
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -440,6 +440,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Layer
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 9dd8e79b916f842fea28674f93f94463,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5866666021909216657, guid: 9dd8e79b916f842fea28674f93f94463,
         type: 3}

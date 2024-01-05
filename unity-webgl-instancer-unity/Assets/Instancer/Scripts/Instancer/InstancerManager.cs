@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using UnityEngine;
 
 namespace Instancer
@@ -11,7 +10,6 @@ namespace Instancer
         public static InstancerManager instance { get; private set; }
 
         private static Dictionary<string, int> _materialPropertyIDs = new Dictionary<string, int>();
-        private static readonly int PROP_TARGET_POSITION = Shader.PropertyToID("_TargetPosition");
 
         private Dictionary<InstancerObject, List<InstancerRenderer>> _instancerRenderers = new Dictionary<InstancerObject, List<InstancerRenderer>>();
 
@@ -21,6 +19,7 @@ namespace Instancer
         private Matrix4x4[] _matrices = new Matrix4x4[MAX_INSTANCE_COUNT_PER_BATCH];
         private Vector4[] _customColors = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
         private Vector4[] _customValues = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
+        private Vector4[] _animParams = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
 
         public bool useInstancer = true;
         private bool _useInstancerCached = true;
@@ -186,6 +185,7 @@ namespace Instancer
             bool useCustomColor = instancer.useCustomColor;
             bool useCustomValue = instancer.useCustomValue;
             bool useCustomData = instancer.useCustomData;
+            bool useAnimation = instancer.animationDataObject != null && instancer.animationDataObject.animationClipDatas.Length > 0;
             if (!_materialPropertyIDs.ContainsKey(instancer.customColorPropertyName))
             {
                 _materialPropertyIDs.Add(instancer.customColorPropertyName, Shader.PropertyToID(instancer.customColorPropertyName));
@@ -197,28 +197,64 @@ namespace Instancer
             int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
             int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
 
-            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexturePropertyName))
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexture0PropertyName))
             {
-                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexturePropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexturePropertyName));
+                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexture0PropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexture0PropertyName));
             }
-            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexturePropertyName))
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexture0PropertyName))
             {
-                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexturePropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexturePropertyName));
+                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexture0PropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexture0PropertyName));
             }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexture1PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexture1PropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexture1PropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexture1PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexture1PropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexture1PropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexture2PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexture2PropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexture2PropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexture2PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexture2PropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexture2PropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexture3PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.positionTexture3PropertyName, Shader.PropertyToID(instancer.animationDataObject.positionTexture3PropertyName));
+            }
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.normalTexture3PropertyName))
+            {
+                _materialPropertyIDs.Add(instancer.animationDataObject.normalTexture3PropertyName, Shader.PropertyToID(instancer.animationDataObject.normalTexture3PropertyName));
+            }
+
             if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.texelSizePropertyName))
             {
                 _materialPropertyIDs.Add(instancer.animationDataObject.texelSizePropertyName, Shader.PropertyToID(instancer.animationDataObject.texelSizePropertyName));
             }
-            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.animationLengthInvPropertyName))
+            if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.animationParamsPropertyName))
             {
-                _materialPropertyIDs.Add(instancer.animationDataObject.animationLengthInvPropertyName, Shader.PropertyToID(instancer.animationDataObject.animationLengthInvPropertyName));
+                _materialPropertyIDs.Add(instancer.animationDataObject.animationParamsPropertyName, Shader.PropertyToID(instancer.animationDataObject.animationParamsPropertyName));
             }
-            int positionTexturePropertyID = _materialPropertyIDs[instancer.animationDataObject.positionTexturePropertyName];
-            int normalTexturePropertyID = _materialPropertyIDs[instancer.animationDataObject.normalTexturePropertyName];
+            int[] positionTexturePropertyIDs = new int[4]
+            {
+                _materialPropertyIDs[instancer.animationDataObject.positionTexture0PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.positionTexture1PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.positionTexture2PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.positionTexture3PropertyName],
+            };
+            int[] normalTexturePropertyIDs = new int[4]
+            {
+                _materialPropertyIDs[instancer.animationDataObject.normalTexture0PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.normalTexture1PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.normalTexture2PropertyName],
+                _materialPropertyIDs[instancer.animationDataObject.normalTexture3PropertyName],
+            };
             int texelSizePropertyID = _materialPropertyIDs[instancer.animationDataObject.texelSizePropertyName];
-            int animationLengthInvPropertyID = _materialPropertyIDs[instancer.animationDataObject.animationLengthInvPropertyName];
-            float texelSize = instancer.animationDataObject.texelSize;
-            float animationLengthInv = instancer.animationDataObject.animationLengthInv;
+            int animationParamsPropertyID = _materialPropertyIDs[instancer.animationDataObject.animationParamsPropertyName];
+            float texelSize = instancer.animationDataObject.texelSize; // vertex count
 
             foreach (var customUniformValue in instancer.customUniformValues)
             {
@@ -234,7 +270,7 @@ namespace Instancer
                 int endIndex = Mathf.Min(startIndex + MAX_INSTANCE_COUNT_PER_BATCH, totalInstanceCount);
                 int instanceCount = endIndex - startIndex;
 
-                if (useCustomData)
+                if (useCustomData || useAnimation)
                 {
                     for (int j = 0; j < instanceCount; j++)
                     {
@@ -246,6 +282,10 @@ namespace Instancer
                         if (useCustomValue)
                         {
                             _customValues[j] = instancerRenderer.customValue;
+                        }
+                        if (useAnimation)
+                        {
+                            _animParams[j] = instancerRenderer.animationParams;
                         }
                     }
                 }
@@ -265,12 +305,18 @@ namespace Instancer
                 }
 
                 // Set animation data
-                if (instancer.animationDataObject != null)
+                if (useAnimation)
                 {
-                    instancer.materials[i].SetTexture(positionTexturePropertyID, instancer.animationDataObject.positionTexture);
-                    instancer.materials[i].SetTexture(normalTexturePropertyID, instancer.animationDataObject.normalTexture);
+                    for (int j = 0; j < instancer.animationDataObject.animationClipDatas.Length; j++)
+                    {
+                        if (instancer.animationDataObject.animationClipDatas[j] != null)
+                        {
+                            instancer.materials[i].SetTexture(positionTexturePropertyIDs[j], instancer.animationDataObject.animationClipDatas[j].positionTexture);
+                            instancer.materials[i].SetTexture(normalTexturePropertyIDs[j], instancer.animationDataObject.animationClipDatas[j].normalTexture);
+                        }
+                    }
                     instancer.materials[i].SetFloat(texelSizePropertyID, texelSize);
-                    instancer.materials[i].SetFloat(animationLengthInvPropertyID, animationLengthInv);
+                    instancer.materials[i].SetVectorArray(animationParamsPropertyID, _animParams);
                 }
 
                 Graphics.DrawMeshInstancedProcedural(

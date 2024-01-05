@@ -9,91 +9,106 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
 {
     [SerializeField] private SkinnedMeshRenderer _skinnedMeshRenderer;
     [SerializeField] private Animator _animator;
-    [SerializeField] private string _animationClipName;
+    [SerializeField] private string[] _animationClipNames; // maximum 4
 
 #if UNITY_EDITOR
     [ContextMenu(nameof(GenerateAnimationData))]
     public void GenerateAnimationData()
     {
-        _animator.enabled = false; // disable animator to sample animation
-
-        // Get Animation Clip
-        AnimationClip animationClip;
-        if (String.IsNullOrEmpty(_animationClipName))
-        {
-            animationClip = _animator.GetCurrentAnimatorClipInfo(0)[0].clip;
-        }
-        else
-        {
-            animationClip = Array.Find(_animator.GetCurrentAnimatorClipInfo(0), c => c.clip.name == _animationClipName).clip;
-        }
-
-
-        // Get Positions and Normals
-        float animationLength = animationClip.length;
-        int frameRate = Mathf.CeilToInt(animationClip.frameRate);
-        int frameCount = Mathf.CeilToInt(animationLength * frameRate);
-
-        Vector3[][] positions = new Vector3[frameCount][];
-        Vector3[][] normals = new Vector3[frameCount][];
-
-        Mesh targetMesh = new Mesh();
-
-        for (int i = 0; i < frameCount; i++) // ignore the last frame
-        {
-            float time = i / (float)frameRate;
-            animationClip.SampleAnimation(_animator.gameObject, time);
-            _skinnedMeshRenderer.BakeMesh(targetMesh);
-
-            positions[i] = targetMesh.vertices;
-            normals[i] = targetMesh.normals;
-        }
-
-
-        // Convert to Texture
-        int vertexCount = positions[0].Length;
-        Color[] positionColors = new Color[vertexCount * frameCount];
-        Color[] normalColors = new Color[vertexCount * frameCount];
-        for (int i = 0; i < frameCount; i++)
-        {
-            for (int j = 0; j < vertexCount; j++)
-            {
-                positionColors[i * vertexCount + j] = new Color(positions[i][j].x, positions[i][j].y, positions[i][j].z, 0f);
-                normalColors[i * vertexCount + j] = new Color(normals[i][j].x, normals[i][j].y, normals[i][j].z, 0f);
-            }
-        }
-
-        Texture2D positionTexture = new Texture2D(vertexCount, frameCount, TextureFormat.RGBAHalf, false);
-        positionTexture.filterMode = FilterMode.Bilinear;
-        positionTexture.wrapMode = animationClip.isLooping ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
-        Texture2D normalTexture = new Texture2D(vertexCount, frameCount, TextureFormat.RGBAHalf, false);
-        normalTexture.filterMode = FilterMode.Bilinear;
-        normalTexture.wrapMode = animationClip.isLooping ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
-        positionTexture.SetPixels(positionColors);
-        normalTexture.SetPixels(normalColors);
-        positionTexture.Apply();
-        normalTexture.Apply();
-
-        string path = GetFilePath() + animationClip.name + "/";
+        string path = GetFilePath() + _skinnedMeshRenderer.sharedMesh.name + "/";
         if (!Directory.Exists(path))
         {
             Directory.CreateDirectory(path);
         }
-        // Save texture asset
-        AssetDatabase.CreateAsset(positionTexture, path + animationClip.name + "_pos.asset");
-        AssetDatabase.CreateAsset(normalTexture, path + animationClip.name + "_norm.asset");
+
+        int vertexCount = _skinnedMeshRenderer.sharedMesh.vertexCount;
+
+        InstancerAnimationDataObject.AnimationClipData[] animationClipDatas = new InstancerAnimationDataObject.AnimationClipData[_animationClipNames.Length];
+        for (int clipIndex = 0; clipIndex < _animationClipNames.Length; clipIndex++)
+        {
+            // Get Animation Clip
+            string animationClipName = _animationClipNames[clipIndex];
+            AnimationClip animationClip;
+            if (String.IsNullOrEmpty(animationClipName))
+            {
+                animationClip = _animator.runtimeAnimatorController.animationClips[0];
+            }
+            else
+            {
+                animationClip = Array.Find(_animator.runtimeAnimatorController.animationClips, c => c.name == animationClipName);
+            }
+
+            // Get Positions and Normals
+            float animationLength = animationClip.length;
+            int frameRate = Mathf.CeilToInt(animationClip.frameRate);
+            int frameCount = Mathf.CeilToInt(animationLength * frameRate);
+            bool isLooping = animationClip.isLooping;
+
+            Vector3[][] positions = new Vector3[frameCount][];
+            Vector3[][] normals = new Vector3[frameCount][];
+
+            Mesh targetMesh = new Mesh();
+
+            _animator.enabled = false; // disable animator to sample animation
+            for (int i = 0; i < frameCount; i++) // ignore the last frame
+            {
+                float time = i / (float)frameRate;
+                animationClip.SampleAnimation(_animator.gameObject, time);
+                _skinnedMeshRenderer.BakeMesh(targetMesh);
+
+                positions[i] = targetMesh.vertices;
+                normals[i] = targetMesh.normals;
+            }
+            _animator.enabled = true; // turn it back on
+
+            // Convert to Texture
+            Color[] positionColors = new Color[vertexCount * frameCount];
+            Color[] normalColors = new Color[vertexCount * frameCount];
+            for (int i = 0; i < frameCount; i++)
+            {
+                for (int j = 0; j < vertexCount; j++)
+                {
+                    positionColors[i * vertexCount + j] = new Color(positions[i][j].x, positions[i][j].y, positions[i][j].z, 0f);
+                    normalColors[i * vertexCount + j] = new Color(normals[i][j].x, normals[i][j].y, normals[i][j].z, 0f);
+                }
+            }
+
+            Texture2D positionTexture = new Texture2D(vertexCount, frameCount, TextureFormat.RGBAHalf, false);
+            positionTexture.filterMode = FilterMode.Bilinear;
+            positionTexture.wrapMode = isLooping ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+            Texture2D normalTexture = new Texture2D(vertexCount, frameCount, TextureFormat.RGBAHalf, false);
+            normalTexture.filterMode = FilterMode.Bilinear;
+            normalTexture.wrapMode = isLooping ? TextureWrapMode.Repeat : TextureWrapMode.Clamp;
+            positionTexture.SetPixels(positionColors);
+            normalTexture.SetPixels(normalColors);
+            positionTexture.Apply();
+            normalTexture.Apply();
+
+            // Save texture asset
+            AssetDatabase.CreateAsset(positionTexture, path + $"clip_{clipIndex}_{animationClip.name}_pos.asset");
+            AssetDatabase.CreateAsset(normalTexture, path + $"clip_{clipIndex}_{animationClip.name}_norm.asset");
+
+            animationClipDatas[clipIndex] = new InstancerAnimationDataObject.AnimationClipData()
+            {
+                clipName = animationClip.name,
+                positionTexture = positionTexture,
+                normalTexture = normalTexture,
+                frameCount = frameCount,
+                frameRate = frameRate,
+                isLooping = isLooping ? 1f : 0f,
+            };
+
+            // Destroy temporary mesh
+            DestroyImmediate(targetMesh);
+        }
 
         // Save to ScriptableObject
         InstancerAnimationDataObject animationDataObject = ScriptableObject.CreateInstance<InstancerAnimationDataObject>();
-        animationDataObject.animationName = animationClip.name;
-        animationDataObject.positionTexture = positionTexture;
-        animationDataObject.normalTexture = normalTexture;
+        animationDataObject.meshName = _skinnedMeshRenderer.sharedMesh.name;
         animationDataObject.vertexCount = vertexCount;
-        animationDataObject.frameCount = frameCount;
-        animationDataObject.frameRate = frameRate;
-        animationDataObject.isLooping = animationClip.isLooping;
+        animationDataObject.animationClipDatas = animationClipDatas;
 
-        AssetDatabase.CreateAsset(animationDataObject, path + animationClip.name + ".asset");
+        AssetDatabase.CreateAsset(animationDataObject, path + $"{animationDataObject.meshName}.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
     }

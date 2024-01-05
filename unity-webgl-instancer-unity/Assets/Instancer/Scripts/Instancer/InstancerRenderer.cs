@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Instancer
@@ -12,10 +10,15 @@ namespace Instancer
 
         public Vector4 customColor = Vector4.one;
         public Vector4 customValue = Vector4.zero;
+        public Vector4 animationParams = new Vector4(0, 0, 1, 1); // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
 
         private void Start()
         {
             InstancerManager.instance.toggleInstancerAction += HandleInstancerToggle;
+            if (instancerObject.useAnimation)
+            {
+                PlayAnimationClip(0); // Initialize parameters
+            }
         }
 
         private void OnDestroy()
@@ -88,6 +91,24 @@ namespace Instancer
                 {
                     InstancerManager.instance.RemoveInstancerRenderer(this);
                 }
+            }
+        }
+
+        public void PlayAnimationClip(int clipIndex)
+        {
+            if (clipIndex != animationParams.x)
+            {
+                InstancerAnimationDataObject.AnimationClipData animationClipData = instancerObject.animationDataObject.animationClipDatas[clipIndex];
+                // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
+                animationParams = new Vector4(
+                    clipIndex,
+                    Time.time,
+                    animationClipData.animationLengthInv,
+                    animationClipData.isLooping);
+            }
+            else
+            {
+                animationParams.y = Time.time;
             }
         }
     }

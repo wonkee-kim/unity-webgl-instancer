@@ -54,11 +54,13 @@ public class Player : MonoBehaviour
             return;
         }
 
+#if !UNITY_EDITOR
         if (SpatialBridge.GetIsSceneInitialized())
         {
             _playerPosition = SpatialBridge.actorService.localActor.avatar.position;
         }
         else
+#endif
         {
             _playerPosition = transform.position;
         }
@@ -74,7 +76,6 @@ public class Player : MonoBehaviour
             return distanceA.CompareTo(distanceB);
         });
 
-        int colliderIndex = 0;
         for (int i = 0; i < _lineRenderers.Length; i++)
         {
             _lineRenderers[i].SetPosition(0, _playerPosition + Vector3.up * 0.5f);
@@ -82,9 +83,8 @@ public class Player : MonoBehaviour
             if (_lineRendererTimers[i] <= 0f)
             {
                 bool isHit = false;
-                for (int j = colliderIndex; j < colliders.Length; j++)
+                for (int j = 0; j < colliders.Length; j++)
                 {
-                    colliderIndex++;
                     if (colliders[j].TryGetComponent(out ZombieBehaviour zombie))
                     {
                         if (zombie.readyToHit)
@@ -93,8 +93,8 @@ public class Player : MonoBehaviour
                             isHit = true;
                             _lineRenderers[i].SetPosition(1, new Vector3(zombie.transform.position.x, 0.5f, zombie.transform.position.z));
                             _lineRendererTimers[i] = 0.02f;
+                            break;
                         }
-                        break;
                     }
                 }
                 _lineRenderers[i].enabled = isHit;
