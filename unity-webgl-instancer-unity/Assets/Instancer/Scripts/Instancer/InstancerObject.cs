@@ -35,7 +35,7 @@ namespace Instancer
         public CustomUniformValue[] customUniformValues;
 
         [Header("Animation Data")]
-        public InstancerAnimationDataObject animationDataObject;
+        public VertexAnimationDataObject animationDataObject;
         public bool useAnimation => animationDataObject != null && animationDataObject.animationClipDatas.Length > 0;
 
         [Header("Instance Settings")]

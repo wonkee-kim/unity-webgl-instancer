@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class InstancerAnimationDataObject : ScriptableObject
+public class VertexAnimationDataObject : ScriptableObject
 {
     [System.Serializable]
     public class AnimationClipData

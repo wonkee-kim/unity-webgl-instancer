@@ -5,7 +5,7 @@ using System.IO;
 using UnityEditor;
 #endif
 
-public class InstancerAnimationDataGenerator : MonoBehaviour
+public class VertexAnimationDataGenerator : MonoBehaviour
 {
     [SerializeField] private SkinnedMeshRenderer _skinnedMeshRenderer;
     [SerializeField] private Animator _animator;
@@ -23,7 +23,7 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
 
         int vertexCount = _skinnedMeshRenderer.sharedMesh.vertexCount;
 
-        InstancerAnimationDataObject.AnimationClipData[] animationClipDatas = new InstancerAnimationDataObject.AnimationClipData[_animationClipNames.Length];
+        VertexAnimationDataObject.AnimationClipData[] animationClipDatas = new VertexAnimationDataObject.AnimationClipData[_animationClipNames.Length];
         for (int clipIndex = 0; clipIndex < _animationClipNames.Length; clipIndex++)
         {
             // Get Animation Clip
@@ -88,7 +88,7 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
             AssetDatabase.CreateAsset(positionTexture, path + $"clip_{clipIndex}_{animationClip.name}_pos.asset");
             AssetDatabase.CreateAsset(normalTexture, path + $"clip_{clipIndex}_{animationClip.name}_norm.asset");
 
-            animationClipDatas[clipIndex] = new InstancerAnimationDataObject.AnimationClipData()
+            animationClipDatas[clipIndex] = new VertexAnimationDataObject.AnimationClipData()
             {
                 clipName = animationClip.name,
                 positionTexture = positionTexture,
@@ -103,7 +103,7 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
         }
 
         // Save to ScriptableObject
-        InstancerAnimationDataObject animationDataObject = ScriptableObject.CreateInstance<InstancerAnimationDataObject>();
+        VertexAnimationDataObject animationDataObject = ScriptableObject.CreateInstance<VertexAnimationDataObject>();
         animationDataObject.meshName = _skinnedMeshRenderer.sharedMesh.name;
         animationDataObject.vertexCount = vertexCount;
         animationDataObject.animationClipDatas = animationClipDatas;
@@ -115,10 +115,10 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
 
     private string GetFilePath()
     {
-        string[] res = System.IO.Directory.GetFiles(Application.dataPath, nameof(InstancerAnimationDataObject) + ".cs", SearchOption.AllDirectories);
+        string[] res = System.IO.Directory.GetFiles(Application.dataPath, nameof(VertexAnimationDataObject) + ".cs", SearchOption.AllDirectories);
         if (res.Length == 0)
         {
-            return "Assets/" + nameof(InstancerAnimationDataObject) + "/";
+            return "Assets/" + nameof(VertexAnimationDataObject) + "/";
         }
         else
         {
@@ -126,7 +126,7 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
             path = path.Replace('\\', '/');
             path = path.Replace(Application.dataPath, "Assets");
             path = path.Substring(0, path.LastIndexOf('/') + 1);
-            path += nameof(InstancerAnimationDataObject) + "/";
+            path += nameof(VertexAnimationDataObject) + "/";
             return path;
         }
     }
@@ -134,14 +134,14 @@ public class InstancerAnimationDataGenerator : MonoBehaviour
 }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(InstancerAnimationDataGenerator))]
+[CustomEditor(typeof(VertexAnimationDataGenerator))]
 public class InstancerAnimationDataGeneratorInspector : Editor
 {
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
         GUILayout.Space(10f);
-        var generator = target as InstancerAnimationDataGenerator;
+        var generator = target as VertexAnimationDataGenerator;
         if (GUILayout.Button(nameof(generator.GenerateAnimationData)))
         {
             generator.GenerateAnimationData();

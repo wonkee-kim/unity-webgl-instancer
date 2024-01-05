@@ -98,7 +98,7 @@ namespace Instancer
         {
             if (clipIndex != animationParams.x || initialize)
             {
-                InstancerAnimationDataObject.AnimationClipData animationClipData = instancerObject.animationDataObject.animationClipDatas[clipIndex];
+                VertexAnimationDataObject.AnimationClipData animationClipData = instancerObject.animationDataObject.animationClipDatas[clipIndex];
                 // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
                 animationParams = new Vector4(
                     clipIndex,
