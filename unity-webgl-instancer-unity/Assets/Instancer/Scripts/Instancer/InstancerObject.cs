@@ -30,6 +30,7 @@ namespace Instancer
         public bool useCustomData => useCustomColor || useCustomValue;
         public string customColorPropertyName = "_CustomColors"; // Vector4
         public string customValuePropertyName = "_CustomValues"; // Vector4
+        public string customValuePropertyName2 = "_CustomValues2"; // Vector4
 
         [Space(5), Tooltip("Use this to set custom values to the material. Not per instance.")]
         public CustomUniformValue[] customUniformValues;

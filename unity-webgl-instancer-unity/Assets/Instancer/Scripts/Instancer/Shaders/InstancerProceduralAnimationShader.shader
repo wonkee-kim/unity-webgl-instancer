@@ -79,6 +79,7 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 half4 _BaseColor;
                 float4 _CustomColors[1000];
                 float4 _CustomValues[1000];
+                float4 _CustomValues2[1000];
                 float3 _TargetPosition;
 
                 float _TexelSize;
@@ -150,7 +151,8 @@ Shader "Instancer/InstancerProceduralAnimationShader"
 
                 // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
-                float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
+                // float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
+                float3 direction = normalize((_CustomValues2[instanceID].xyz - instancePosition) * float3(1,0,1));
 
                 float angle = -atan2(direction.z, direction.x) + 3.141592 * 0.5;
                 positionOS = Unity_RotateAboutAxis_Radians_float(positionOS, float3(0, 1, 0), angle);
@@ -258,6 +260,7 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 half4 _BaseColor;
                 float4 _CustomColors[1000];
                 float4 _CustomValues[1000];
+                float4 _CustomValues2[1000];
                 float3 _TargetPosition;
 
                 float _TexelSize;
@@ -323,7 +326,8 @@ Shader "Instancer/InstancerProceduralAnimationShader"
 
                 // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
-                float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
+                // float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
+                float3 direction = normalize((_CustomValues2[instanceID].xyz - instancePosition) * float3(1,0,1));
                 float angle = -atan2(direction.z, direction.x) + 3.141592 * 0.5;
                 positionOS = Unity_RotateAboutAxis_Radians_float(positionOS, float3(0, 1, 0), angle);
                 positionOS += instancePosition;

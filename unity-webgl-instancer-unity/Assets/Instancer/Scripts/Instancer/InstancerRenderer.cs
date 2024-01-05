@@ -10,6 +10,7 @@ namespace Instancer
 
         public Vector4 customColor = Vector4.one;
         public Vector4 customValue = Vector4.zero;
+        public Vector4 customValue2 = Vector4.zero;
         public Vector4 animationParams = new Vector4(0, 0, 1, 1); // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
 
         private void Start()

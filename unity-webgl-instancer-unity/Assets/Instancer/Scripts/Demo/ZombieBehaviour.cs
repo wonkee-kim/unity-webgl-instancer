@@ -14,7 +14,7 @@ public class ZombieBehaviour : MonoBehaviour
     }
     [SerializeField] private RenderMode _renderMode = RenderMode.Instancer;
 
-    [SerializeField] private InstancerRenderer _instancerRenderer;
+    [SerializeField] private InstancerRenderer _instancerRenderer;  
     [SerializeField] private VertexAnimationRenderer _vertexAnimationRenderer;
     private VertexAnimationDataObject _animationDataObject =>
         (_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
@@ -28,6 +28,8 @@ public class ZombieBehaviour : MonoBehaviour
     private IEnumerator _hitCoroutine;
     private float _dieTime;
     public bool readyToHit = true;
+
+    private Vector3 _hitPosition;
 
     private void Awake()
     {
@@ -50,6 +52,14 @@ public class ZombieBehaviour : MonoBehaviour
         {
             case RenderMode.Instancer:
                 _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, _emission);
+                if (readyToHit)
+                {
+                    _instancerRenderer.customValue2 = Player.position;
+                }
+                else
+                {
+                    _instancerRenderer.customValue2 = _hitPosition;
+                }
                 break;
             case RenderMode.VertexAnimation:
                 _vertexAnimationRenderer.renderer.material.SetFloat(PROP_EMISSION, _emission);
@@ -80,12 +90,24 @@ public class ZombieBehaviour : MonoBehaviour
         _instancerRenderer.PlayAnimationClip(0);
     }
 
-    public void Hit(int damage)
+    public void Hit(int damage, Vector3 hitPosition)
     {
+        if (!readyToHit)
+        {
+            return;
+        }
+
         readyToHit = false;
+        _hitPosition = hitPosition;
+
+        _rigidbody.velocity = Vector3.zero;
+        transform.position += (transform.position - _hitPosition).normalized * 1.5f;
+
         _health -= damage;
-        transform.position += (transform.position - Player.position).normalized * 1f;
-        _instancerRenderer.PlayAnimationClip(1);
+        if (_health <= 0)
+        {
+            _instancerRenderer.PlayAnimationClip(1);
+        }
 
         if (_hitCoroutine != null)
         {

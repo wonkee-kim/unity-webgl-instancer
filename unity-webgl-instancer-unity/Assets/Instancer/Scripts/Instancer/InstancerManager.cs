@@ -19,6 +19,7 @@ namespace Instancer
         private Matrix4x4[] _matrices = new Matrix4x4[MAX_INSTANCE_COUNT_PER_BATCH];
         private Vector4[] _customColors = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
         private Vector4[] _customValues = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
+        private Vector4[] _customValues2 = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
         private Vector4[] _animParams = new Vector4[MAX_INSTANCE_COUNT_PER_BATCH];
 
         public bool useInstancer = true;
@@ -194,8 +195,13 @@ namespace Instancer
             {
                 _materialPropertyIDs.Add(instancer.customValuePropertyName, Shader.PropertyToID(instancer.customValuePropertyName));
             }
+            if (!_materialPropertyIDs.ContainsKey(instancer.customValuePropertyName2))
+            {
+                _materialPropertyIDs.Add(instancer.customValuePropertyName2, Shader.PropertyToID(instancer.customValuePropertyName2));
+            }
             int customColorPropertyID = _materialPropertyIDs[instancer.customColorPropertyName];
             int customValuePropertyID = _materialPropertyIDs[instancer.customValuePropertyName];
+            int customValuePropertyID2 = _materialPropertyIDs[instancer.customValuePropertyName2];
 
             if (!_materialPropertyIDs.ContainsKey(instancer.animationDataObject.positionTexture0PropertyName))
             {
@@ -282,6 +288,7 @@ namespace Instancer
                         if (useCustomValue)
                         {
                             _customValues[j] = instancerRenderer.customValue;
+                            _customValues2[j] = instancerRenderer.customValue2;
                         }
                         if (useAnimation)
                         {
@@ -298,6 +305,7 @@ namespace Instancer
                 if (useCustomValue)
                 {
                     instancer.materials[i].SetVectorArray(customValuePropertyID, _customValues);
+                    instancer.materials[i].SetVectorArray(customValuePropertyID2, _customValues2);
                 }
                 foreach (var customUniformValue in instancer.customUniformValues)
                 {

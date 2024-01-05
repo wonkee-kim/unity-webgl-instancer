@@ -1,27 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using SpatialSys.UnitySDK;
 using Instancer;
 
 public class Player : MonoBehaviour
 {
+    private static readonly int PROP_OPACITY = Shader.PropertyToID("_Opacity");
+
     public static Player instance { get; private set; }
     public static Vector3 position => instance._playerPosition;
     [SerializeField] private Vector3 _playerPosition;
     [SerializeField] private Vector3 _playerForward = Vector3.forward;
-    [SerializeField] private float _radius = 5f;
+
+    [Header("Laser Attack")]
+    [SerializeField] private float _laserRadius = 7f;
+    [SerializeField] private LineRenderer[] _lineRenderers;
+    private float[] _lineRendererTimers;
+    private bool _isLaserAttack = true;
+
+    [Header("Bomb Attack")]
+    [SerializeField] private float _bombRadius = 15;
+    [SerializeField] private float _bombAttackRadius = 5f;
+    [SerializeField] private MeshRenderer _bombEffectRenderer;
+    private const float BOMB_EFFECT_STAY_TIME = 0.2f;
+    private float _bombEffectTime = 0f;
 
     [SerializeField] private LayerMask _layerMask;
 
-    [SerializeField] private LineRenderer[] _lineRenderers;
-    private float[] _lineRendererTimers;
-
-    private bool _isAttack = true;
-
     [SerializeField] private InstancerObject _instancerObject;
-
-    [SerializeField] private SpatialVirtualCamera _virtualCamera;
 
     private void Awake()
     {
@@ -30,6 +35,7 @@ public class Player : MonoBehaviour
             instance = this;
         }
         _lineRendererTimers = new float[_lineRenderers.Length];
+        _bombEffectRenderer.transform.localScale = Vector3.one * _bombAttackRadius * 2f;
     }
     private void OnDestroy()
     {
@@ -42,7 +48,7 @@ public class Player : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(_playerPosition, _radius);
+        Gizmos.DrawWireSphere(_playerPosition, _laserRadius);
     }
 
     private void Update()
@@ -63,14 +69,34 @@ public class Player : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.J))
         {
-            _isAttack = !_isAttack;
+            _isLaserAttack = !_isLaserAttack;
         }
-        if (!_isAttack)
+        if (_isLaserAttack)
         {
-            return;
+            LaserAttack();
         }
 
-        Collider[] colliders = Physics.OverlapSphere(_playerPosition, _radius, _layerMask);
+        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+        {
+            BombAttack();
+        }
+
+        float bombAttackTime = Time.time - _bombEffectTime;
+        if (bombAttackTime > BOMB_EFFECT_STAY_TIME)
+        {
+            _bombEffectRenderer.enabled = false;
+        }
+        else
+        {
+            float opacity = 1f - bombAttackTime / BOMB_EFFECT_STAY_TIME;
+            opacity = opacity * opacity * opacity;
+            _bombEffectRenderer.material.SetFloat(PROP_OPACITY, opacity);
+        }
+    }
+
+    private void LaserAttack()
+    {
+        Collider[] colliders = Physics.OverlapSphere(_playerPosition, _laserRadius, _layerMask);
 
         // Sort colliders by distance
         System.Array.Sort(colliders, (a, b) =>
@@ -105,7 +131,7 @@ public class Player : MonoBehaviour
                     {
                         if (zombie.readyToHit)
                         {
-                            zombie.Hit(10);
+                            zombie.Hit(10, _playerPosition);
                             isHit = true;
                             _lineRenderers[i].SetPosition(1, new Vector3(zombie.transform.position.x, 0.5f, zombie.transform.position.z));
                             _lineRendererTimers[i] = 0.15f;
@@ -122,6 +148,26 @@ public class Player : MonoBehaviour
                 {
                     _lineRenderers[i].enabled = false;
                 }
+            }
+        }
+    }
+
+    private void BombAttack()
+    {
+        Vector3 randomPosition = Random.insideUnitCircle * _bombRadius;
+        Vector3 attackPosition = new Vector3(randomPosition.x, 0f, randomPosition.y) + _playerPosition;
+
+        _bombEffectTime = Time.time;
+        _bombEffectRenderer.enabled = true;
+        _bombEffectRenderer.transform.position = attackPosition;
+
+        Collider[] colliders = Physics.OverlapSphere(attackPosition, _bombAttackRadius, _layerMask);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].TryGetComponent(out ZombieBehaviour zombie))
+            {
+                float distance = Vector3.Distance(attackPosition, zombie.transform.position);
+                zombie.Hit((int)(30f * (1f - distance / _bombAttackRadius)), attackPosition);
             }
         }
     }
