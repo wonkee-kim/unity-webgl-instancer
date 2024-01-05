@@ -32,5 +32,4 @@
         // customColor = _CustomColors[DEFAULT_UNITY_VERTEX_INPUT_INSTANCE_ID];
         // customValue = _CustomValues[DEFAULT_UNITY_VERTEX_INPUT_INSTANCE_ID];
     }
-
 #endif

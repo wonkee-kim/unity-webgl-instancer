@@ -17,9 +17,9 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
         _AnimTexPos3 ("Animation Texture Position 3", 2D) = "white" {}
         _AnimTexNorm3 ("Animation Texture Normal 3", 2D) = "white" {}
 
-        _TexelSize ("Texel Size (1/width)", float) = 0.002
-        _AnimParams ("Animation Params (x: index, y: time, z: animLengthInv, w: isLooping (0 or 1))", Vector) = (0, 0, 0, 0)
-        _RandomSeed ("Random Seed", Float) = 0
+        // _TexelSize ("Texel Size (1/width)", float) = 0.002
+        // _AnimParams ("Animation Params (x: index, y: time, z: animLengthInv, w: isLooping (0 or 1))", Vector) = (0, 0, 0, 0)
+        // _RandomSeed ("Random Seed", Float) = 0
     }
     SubShader
     {
@@ -36,6 +36,7 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
             #pragma multi_compile_fog
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "./VertexAnimation.hlsl"
 
             struct Attributes
             {
@@ -61,31 +62,10 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
-            TEXTURE2D(_AnimTexPos0);
-            SAMPLER(sampler_AnimTexPos0);
-            TEXTURE2D(_AnimTexNorm0);
-            SAMPLER(sampler_AnimTexNorm0);
-            TEXTURE2D(_AnimTexPos1);
-            SAMPLER(sampler_AnimTexPos1);
-            TEXTURE2D(_AnimTexNorm1);
-            SAMPLER(sampler_AnimTexNorm1);
-            TEXTURE2D(_AnimTexPos2);
-            SAMPLER(sampler_AnimTexPos2);
-            TEXTURE2D(_AnimTexNorm2);
-            SAMPLER(sampler_AnimTexNorm2);
-            TEXTURE2D(_AnimTexPos3);
-            SAMPLER(sampler_AnimTexPos3);
-            TEXTURE2D(_AnimTexNorm3);
-            SAMPLER(sampler_AnimTexNorm3);
-
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
                 half _Emission;
-
-                float _TexelSize;
-                float4 _AnimParams; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
-                float _RandomSeed;
             CBUFFER_END
 
             Varying vert (Attributes IN, uint vertexID : SV_VertexID)
@@ -95,41 +75,9 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT); // Have this if you want to use UNITY_ACCESS_INSTANCED_PROP in fragment shader
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                // Get position and normal (Animation)
-                float4 animParams = _AnimParams; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
-                float time = (_Time.y - animParams.y) * animParams.z;
-                if(animParams.w > 0.5) // looping
-                {
-                    time += _RandomSeed * 172.827412; // randomize
-                    // time = fmod(time, 1.0); // looping
-                }
-                // else
-                // {
-                    //     time = saturate(time); // not looping
-                // }
-
-                float2 uv;
-                uv.x = (float(vertexID) + 0.5) * _TexelSize;
-                uv.y = time;
-
                 float3 positionOS;
                 float3 normalOS;
-                if(animParams.x == 1){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm1, sampler_AnimTexNorm1, uv, 0).xyz;
-                }
-                else if(animParams.x == 2){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm2, sampler_AnimTexNorm2, uv, 0).xyz;
-                }
-                else if(animParams.x == 3){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm3, sampler_AnimTexNorm3, uv, 0).xyz;
-                }
-                else { // param.x == 0
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm0, sampler_AnimTexNorm0, uv, 0).xyz;
-                }
+                VERTEX_ANIMATION_OUTPUT(positionOS, normalOS, vertexID);
 
                 // Lighting
                 // VertexPositionInputs vertexInput = GetVertexPositionInputs(IN.positionOS.xyz);
@@ -185,6 +133,7 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+            #include "./VertexAnimation.hlsl"
 
             // Shadow Casting Light geometric parameters. These variables are used when applying the shadow Normal Bias and are set by UnityEngine.Rendering.Universal.ShadowUtils.SetupShadowCasterConstantBuffer in com.unity.render-pipelines.universal/Runtime/ShadowUtils.cs
             // For Directional lights, _LightDirection is used when applying shadow Normal Bias.
@@ -206,51 +155,15 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
                 float4 positionCS   : SV_POSITION;
             };
 
+            // SurfaceInput.hlsl contains this
             // TEXTURE2D(_BaseMap);
             // SAMPLER(sampler_BaseMap);
-
-            TEXTURE2D(_AnimTexPos0);
-            SAMPLER(sampler_AnimTexPos0);
-            TEXTURE2D(_AnimTexNorm0);
-            SAMPLER(sampler_AnimTexNorm0);
-            TEXTURE2D(_AnimTexPos1);
-            SAMPLER(sampler_AnimTexPos1);
-            TEXTURE2D(_AnimTexNorm1);
-            SAMPLER(sampler_AnimTexNorm1);
-            TEXTURE2D(_AnimTexPos2);
-            SAMPLER(sampler_AnimTexPos2);
-            TEXTURE2D(_AnimTexNorm2);
-            SAMPLER(sampler_AnimTexNorm2);
-            TEXTURE2D(_AnimTexPos3);
-            SAMPLER(sampler_AnimTexPos3);
-            TEXTURE2D(_AnimTexNorm3);
-            SAMPLER(sampler_AnimTexNorm3);
 
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 half4 _BaseColor;
-                float4 _CustomColors[1000];
-                float4 _CustomValues[1000];
-                float3 _TargetPosition;
-
-                float _TexelSize;
-                float4 _AnimParams[1000]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
+                half _Emission;
             CBUFFER_END
-
-            float3 Unity_RotateAboutAxis_Radians_float(float3 In, float3 Axis, float Rotation)
-            {
-                float s = sin(Rotation);
-                float c = cos(Rotation);
-                float one_minus_c = 1.0 - c;
-
-                Axis = normalize(Axis);
-                float3x3 rot_mat = 
-                {   one_minus_c * Axis.x * Axis.x + c, one_minus_c * Axis.x * Axis.y - Axis.z * s, one_minus_c * Axis.z * Axis.x + Axis.y * s,
-                    one_minus_c * Axis.x * Axis.y + Axis.z * s, one_minus_c * Axis.y * Axis.y + c, one_minus_c * Axis.y * Axis.z - Axis.x * s,
-                    one_minus_c * Axis.z * Axis.x - Axis.y * s, one_minus_c * Axis.y * Axis.z + Axis.x * s, one_minus_c * Axis.z * Axis.z + c
-                };
-                return mul(rot_mat,  In);
-            }
 
             Varyings ShadowPassVertexInstancer(Attributes input, uint instanceID : SV_InstanceID, uint vertexID : SV_VertexID)
             {
@@ -259,51 +172,9 @@ Shader "VertexAnimation/VertexAnimationExampleShader"
                 UNITY_TRANSFER_INSTANCE_ID(input, output); // Have this if you want to use UNITY_ACCESS_INSTANCED_PROP in fragment shader
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-                // Custom Data
-                float4 customColor = _CustomColors[instanceID];
-                float4 customValue = _CustomValues[instanceID];
-                float4 animParams = _AnimParams[instanceID]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
-
-                // Get position and normal (Animation)
-                float time = (_Time.y - animParams.y) * animParams.z;
-                if(animParams.w > 0.5) // looping
-                {
-                    time += customColor.a * 172.827412; // randomize
-                }
-
-                float2 uv;
-                uv.x = (float(vertexID) + 0.5) * _TexelSize;
-                uv.y = time;
-
                 float3 positionOS;
                 float3 normalOS;
-                if(animParams.x == 1){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm1, sampler_AnimTexNorm1, uv, 0).xyz;
-                }
-                else if(animParams.x == 2){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm2, sampler_AnimTexNorm2, uv, 0).xyz;
-                }
-                else if(animParams.x == 3){
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm3, sampler_AnimTexNorm3, uv, 0).xyz;
-                }
-                else { // param.x == 0
-                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
-                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm0, sampler_AnimTexNorm0, uv, 0).xyz;
-                }
-
-                // Transform
-                float3 instancePosition = float3(customValue.x, 0, customValue.y);
-                float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
-                float angle = -atan2(direction.z, direction.x) + 3.141592 * 0.5;
-                positionOS = Unity_RotateAboutAxis_Radians_float(positionOS, float3(0, 1, 0), angle);
-                positionOS += instancePosition;
-                positionOS *= customValue.z;
-
-
-                output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
+                VERTEX_ANIMATION_OUTPUT(positionOS, normalOS, vertexID);
 
                 // output.positionCS = GetShadowPositionHClip(input);
                 float3 positionWS = TransformObjectToWorld(positionOS);
