@@ -113,7 +113,7 @@ public class Player : MonoBehaviour
                             zombie.Hit(10);
                             isHit = true;
                             _lineRenderers[i].SetPosition(1, new Vector3(zombie.transform.position.x, 0.5f, zombie.transform.position.z));
-                            _lineRendererTimers[i] = 0.1f;
+                            _lineRendererTimers[i] = 0.15f;
                             break;
                         }
                     }
@@ -123,6 +123,10 @@ public class Player : MonoBehaviour
             else
             {
                 _lineRendererTimers[i] -= Time.deltaTime;
+                if (_lineRendererTimers[i] <= 0.1f)
+                {
+                    _lineRenderers[i].enabled = false;
+                }
             }
         }
     }

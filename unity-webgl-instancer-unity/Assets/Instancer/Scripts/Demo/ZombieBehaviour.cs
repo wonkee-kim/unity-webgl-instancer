@@ -63,12 +63,12 @@ public class ZombieBehaviour : MonoBehaviour
     private IEnumerator HitCoroutine()
     {
         float currentTime = Time.realtimeSinceStartup;
-        emission = 4f;
+        emission = 8f;
         // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
         yield return new WaitForSeconds(0.01f);
         while (emission > 0f)
         {
-            emission -= Time.deltaTime * 20f;
+            emission -= Time.deltaTime * 30f;
             // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
             yield return null;
         }
