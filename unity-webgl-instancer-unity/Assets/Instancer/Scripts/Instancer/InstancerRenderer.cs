@@ -17,7 +17,7 @@ namespace Instancer
             InstancerManager.instance.toggleInstancerAction += HandleInstancerToggle;
             if (instancerObject.useAnimation)
             {
-                PlayAnimationClip(0); // Initialize parameters
+                PlayAnimationClip(0, initialize: true); // Initialize parameters
             }
         }
 
@@ -94,9 +94,9 @@ namespace Instancer
             }
         }
 
-        public void PlayAnimationClip(int clipIndex)
+        public void PlayAnimationClip(int clipIndex, bool initialize = false)
         {
-            if (clipIndex != animationParams.x)
+            if (clipIndex != animationParams.x || initialize)
             {
                 InstancerAnimationDataObject.AnimationClipData animationClipData = instancerObject.animationDataObject.animationClipDatas[clipIndex];
                 // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)

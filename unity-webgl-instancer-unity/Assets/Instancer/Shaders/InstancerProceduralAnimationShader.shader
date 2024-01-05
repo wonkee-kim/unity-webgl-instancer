@@ -35,8 +35,8 @@ Shader "Instancer/InstancerProceduralAnimationShader"
             struct Attributes
             {
                 // no need to get position and normal from mesh
-                float4 positionOS : POSITION;
-                float3 normalOS : NORMAL;
+                // float4 positionOS : POSITION;
+                // float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
@@ -197,24 +197,8 @@ Shader "Instancer/InstancerProceduralAnimationShader"
             ZWrite On
             ZTest LEqual
             ColorMask 0
-            // Cull[_Cull]
 
             HLSLPROGRAM
-            // #pragma exclude_renderers gles gles3 glcore
-            // #pragma target 4.5
-
-            // -------------------------------------
-            // Material Keywords
-            // #pragma shader_feature_local_fragment _ALPHATEST_ON
-            // #pragma shader_feature_local_fragment _GLOSSINESS_FROM_BASE_ALPHA
-
-            //--------------------------------------
-            // GPU Instancing
-            // #pragma multi_compile_instancing
-            // #pragma multi_compile _ DOTS_INSTANCING_ON
-
-            // -------------------------------------
-            // Universal Pipeline keywords
 
             // This is used during shadow map generation to differentiate between directional and punctual light shadows, as they use different formulas to apply Normal Bias
             #pragma multi_compile_vertex _ _CASTING_PUNCTUAL_LIGHT_SHADOW
@@ -222,24 +206,63 @@ Shader "Instancer/InstancerProceduralAnimationShader"
             #pragma vertex ShadowPassVertexInstancer
             #pragma fragment ShadowPassFragmentInstancer
 
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/SimpleLitInput.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            // #include "Packages/com.unity.render-pipelines.universal/Shaders/SimpleLitInput.hlsl"
+            // #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
+
+            // Shadow Casting Light geometric parameters. These variables are used when applying the shadow Normal Bias and are set by UnityEngine.Rendering.Universal.ShadowUtils.SetupShadowCasterConstantBuffer in com.unity.render-pipelines.universal/Runtime/ShadowUtils.cs
+            // For Directional lights, _LightDirection is used when applying shadow Normal Bias.
+            // For Spot lights and Point lights, _LightPosition is used to compute the actual light direction because it is different at each shadow caster geometry vertex.
+            float3 _LightDirection;
+            float3 _LightPosition;
+
+            struct Attributes
+            {
+                // float4 positionOS   : POSITION;
+                // float3 normalOS     : NORMAL;
+                float2 texcoord     : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct Varyings
+            {
+                float2 uv           : TEXCOORD0;
+                float4 positionCS   : SV_POSITION;
+            };
+
+            // TEXTURE2D(_BaseMap);
+            // SAMPLER(sampler_BaseMap);
 
             TEXTURE2D(_AnimTexPos0);
             SAMPLER(sampler_AnimTexPos0);
+            TEXTURE2D(_AnimTexNorm0);
+            SAMPLER(sampler_AnimTexNorm0);
             TEXTURE2D(_AnimTexPos1);
             SAMPLER(sampler_AnimTexPos1);
+            TEXTURE2D(_AnimTexNorm1);
+            SAMPLER(sampler_AnimTexNorm1);
             TEXTURE2D(_AnimTexPos2);
             SAMPLER(sampler_AnimTexPos2);
+            TEXTURE2D(_AnimTexNorm2);
+            SAMPLER(sampler_AnimTexNorm2);
             TEXTURE2D(_AnimTexPos3);
             SAMPLER(sampler_AnimTexPos3);
+            TEXTURE2D(_AnimTexNorm3);
+            SAMPLER(sampler_AnimTexNorm3);
 
-            half4 _CustomColors[1000];
-            half4 _CustomValues[1000];
-            float3 _TargetPosition;
-            
-            float _TexelSize;
-            float4 _AnimParams[1000]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                half4 _BaseColor;
+                float4 _CustomColors[1000];
+                float4 _CustomValues[1000];
+                float3 _TargetPosition;
+
+                float _TexelSize;
+                float4 _AnimParams[1000]; // x: index, y: time, z: animLengthInv, w: isLooping (0 or 1)
+            CBUFFER_END
 
             float3 Unity_RotateAboutAxis_Radians_float(float3 In, float3 Axis, float Rotation)
             {
@@ -258,8 +281,10 @@ Shader "Instancer/InstancerProceduralAnimationShader"
 
             Varyings ShadowPassVertexInstancer(Attributes input, uint instanceID : SV_InstanceID, uint vertexID : SV_VertexID)
             {
-                Varyings output;
                 UNITY_SETUP_INSTANCE_ID(input);
+                Varyings output = (Varyings)0;
+                UNITY_TRANSFER_INSTANCE_ID(input, output); // Have this if you want to use UNITY_ACCESS_INSTANCED_PROP in fragment shader
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
                 // Custom Data
                 float4 customColor = _CustomColors[instanceID];
@@ -278,36 +303,62 @@ Shader "Instancer/InstancerProceduralAnimationShader"
                 uv.y = time;
 
                 float3 positionOS;
+                float3 normalOS;
                 if(animParams.x == 1){
-                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos1, sampler_AnimTexPos1, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm1, sampler_AnimTexNorm1, uv, 0).xyz;
                 }
                 else if(animParams.x == 2){
-                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos2, sampler_AnimTexPos2, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm2, sampler_AnimTexNorm2, uv, 0).xyz;
                 }
                 else if(animParams.x == 3){
-                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos3, sampler_AnimTexPos3, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm3, sampler_AnimTexNorm3, uv, 0).xyz;
                 }
                 else { // param.x == 0
-                    input.positionOS.xyz = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
+                    positionOS = SAMPLE_TEXTURE2D_LOD(_AnimTexPos0, sampler_AnimTexPos0, uv, 0).xyz;
+                    normalOS = SAMPLE_TEXTURE2D_LOD(_AnimTexNorm0, sampler_AnimTexNorm0, uv, 0).xyz;
                 }
 
                 // Transform
                 float3 instancePosition = float3(customValue.x, 0, customValue.y);
                 float3 direction = normalize((_TargetPosition - instancePosition) * float3(1,0,1));
-
                 float angle = -atan2(direction.z, direction.x) + 3.141592 * 0.5;
-                input.positionOS.xyz = Unity_RotateAboutAxis_Radians_float(input.positionOS.xyz, float3(0, 1, 0), angle);
-                input.positionOS.xyz += instancePosition;
-                input.positionOS.y *= customValue.z;
+                positionOS = Unity_RotateAboutAxis_Radians_float(positionOS, float3(0, 1, 0), angle);
+                positionOS += instancePosition;
+                positionOS *= customValue.z;
+
 
                 output.uv = TRANSFORM_TEX(input.texcoord, _BaseMap);
-                output.positionCS = GetShadowPositionHClip(input);
+
+                // output.positionCS = GetShadowPositionHClip(input);
+                float3 positionWS = TransformObjectToWorld(positionOS);
+                float3 normalWS = TransformObjectToWorldNormal(normalOS);
+
+                #if _CASTING_PUNCTUAL_LIGHT_SHADOW
+                    float3 lightDirectionWS = normalize(_LightPosition - positionWS);
+                #else
+                    float3 lightDirectionWS = _LightDirection;
+                #endif
+
+                float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, lightDirectionWS));
+
+                #if UNITY_REVERSED_Z
+                    positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+                #else
+                    positionCS.z = max(positionCS.z, UNITY_NEAR_CLIP_VALUE);
+                #endif
+
+                output.positionCS = positionCS;
+                
                 return output;
             }
 
             half4 ShadowPassFragmentInstancer(Varyings input) : SV_TARGET
             {
-                Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
+                // Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, _Cutoff);
+                Alpha(SampleAlbedoAlpha(input.uv, TEXTURE2D_ARGS(_BaseMap, sampler_BaseMap)).a, _BaseColor, 0.5);
                 return 0;
             }
             ENDHLSL
