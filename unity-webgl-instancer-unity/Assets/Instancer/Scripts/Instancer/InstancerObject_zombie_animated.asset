@@ -21,7 +21,7 @@ MonoBehaviour:
   customUniformValues:
   - propertyName: _TargetPosition
     value: {x: 0, y: 0, z: 0, w: 0}
-  animationDataObject: {fileID: 11400000, guid: 911cec95ec1a44b209400567c7cb8ffb,
+  animationDataObject: {fileID: 11400000, guid: 15a908945c06a40c2acbe35edc5b2920,
     type: 2}
   instanceMode: 0
   materials:
