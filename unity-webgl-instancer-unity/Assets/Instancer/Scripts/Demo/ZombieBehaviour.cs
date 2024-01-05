@@ -49,7 +49,8 @@ public class ZombieBehaviour : MonoBehaviour
     {
         readyToHit = false;
         _health -= damage;
-        transform.position += (transform.position - Player.position).normalized * 0.5f;
+        // transform.position += (transform.position - Player.position).normalized * 0.5f;
+        transform.position += (transform.position - Player.position).normalized * 1f;
         _instancerRenderer.PlayAnimationClip(1);
 
         if (_hitCoroutine != null)
@@ -64,12 +65,12 @@ public class ZombieBehaviour : MonoBehaviour
     {
         float currentTime = Time.realtimeSinceStartup;
         emission = 4f;
-        transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
+        // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
         yield return new WaitForSeconds(0.01f);
         while (emission > 0f)
         {
             emission -= Time.deltaTime * 20f;
-            transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
+            // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
             yield return null;
         }
         emission = 0f;
