@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class VertexAnimationRenderer : MonoBehaviour
 {
@@ -32,7 +36,13 @@ public class VertexAnimationRenderer : MonoBehaviour
     /// </summary>
     public void PlayAnimationClip(int clipIndex, bool initialize = false)
     {
-        // clipIndex = Mathf.Clamp(clipIndex, 0, animationDataObject.animationClipDatas.Length - 1);
+        if (clipIndex < 0 || clipIndex >= animationDataObject.animationClipDatas.Length || clipIndex >= 4)
+        {
+            int maxClipIndex = Mathf.Min(animationDataObject.animationClipDatas.Length - 1, 3);
+            Debug.LogError($"Clip index({clipIndex}) out of range. Index should be 0 ~ {maxClipIndex}.");
+            clipIndex = Mathf.Clamp(clipIndex, 0, maxClipIndex);
+        }
+
         if (initialize || clipIndex != animationParams.x)
         {
             VertexAnimationDataObject.AnimationClipData animationClipData = animationDataObject.animationClipDatas[clipIndex];
@@ -80,18 +90,39 @@ public class VertexAnimationRenderer : MonoBehaviour
         {
             _meshFilter = GetComponent<MeshFilter>();
         }
-        if (_meshRenderer == null)
-        {
-            _meshRenderer = GetComponent<MeshRenderer>();
-        }
         if (_meshFilter != null && animationDataObject != null)
         {
             _meshFilter.mesh = animationDataObject.mesh;
         }
+        if (_meshRenderer == null)
+        {
+            _meshRenderer = GetComponent<MeshRenderer>();
+        }
         if (_meshRenderer != null)
         {
+            if (_meshRenderer.sharedMaterial == null && animationDataObject != null)
+            {
+                _meshRenderer.sharedMaterial = animationDataObject.fallbackMaterial;
+            }
             _meshRenderer.enabled = false;
         }
+    }
+
+    public void PlayAnimationClip0()
+    {
+        PlayAnimationClip(0);
+    }
+    public void PlayAnimationClip1()
+    {
+        PlayAnimationClip(1);
+    }
+    public void PlayAnimationClip2()
+    {
+        PlayAnimationClip(2);
+    }
+    public void PlayAnimationClip3()
+    {
+        PlayAnimationClip(3);
     }
 #endif
 
@@ -104,6 +135,17 @@ public class VertexAnimationRenderer : MonoBehaviour
         if (_meshRenderer == null)
         {
             _meshRenderer = GetComponent<MeshRenderer>();
+        }
+        if (animationDataObject.materialOverride != null)
+        {
+            _meshRenderer.material = animationDataObject.materialOverride;
+        }
+        else
+        {
+            if (_meshRenderer.sharedMaterial == null)
+            {
+                _meshRenderer.material = animationDataObject.fallbackMaterial;
+            }
         }
         _meshFilter.mesh = animationDataObject.mesh;
         _meshRenderer.enabled = useVertexAnimation;
@@ -185,3 +227,40 @@ public class VertexAnimationRenderer : MonoBehaviour
         _meshRenderer.material.SetVector(animationParamsPropertyID, animationParams);
     }
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(VertexAnimationRenderer))]
+public class VertexAnimationRendererInspector : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        GUILayout.Space(10f);
+
+        VertexAnimationRenderer renderer = target as VertexAnimationRenderer;
+
+        if (GUILayout.Button(nameof(renderer.PlayAnimationClip0)))
+        {
+            renderer.PlayAnimationClip0();
+        }
+
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button(nameof(renderer.PlayAnimationClip1)))
+        {
+            renderer.PlayAnimationClip1();
+        }
+
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button(nameof(renderer.PlayAnimationClip2)))
+        {
+            renderer.PlayAnimationClip2();
+        }
+
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button(nameof(renderer.PlayAnimationClip3)))
+        {
+            renderer.PlayAnimationClip3();
+        }
+    }
+}
+#endif

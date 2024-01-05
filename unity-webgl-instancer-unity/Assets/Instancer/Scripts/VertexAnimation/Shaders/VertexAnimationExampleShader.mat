@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: VertexAnimationShader
-  m_Shader: {fileID: 4800000, guid: 73c7ea110e538421997a027e9875fd5c, type: 3}
+  m_Name: VertexAnimationExampleShader
+  m_Shader: {fileID: 4800000, guid: bea73b815ad614bb18ebd8af26a8de03, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4

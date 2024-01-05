@@ -28,6 +28,7 @@ MonoBehaviour:
     frameCount: 21
     frameRate: 30
     isLooping: 0
+  _material: {fileID: 2100000, guid: 5214194018d9d4e31935e342000a6f1c, type: 2}
   positionTexture0PropertyName: _AnimTexPos0
   normalTexture0PropertyName: _AnimTexNorm0
   positionTexture1PropertyName: _AnimTexPos1

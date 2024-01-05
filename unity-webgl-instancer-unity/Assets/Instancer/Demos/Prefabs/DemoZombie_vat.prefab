@@ -46,9 +46,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _skinnedMeshRenderer: {fileID: 189918961035256541}
   _animator: {fileID: 844108118038015150}
-  _animationClipNames:
-  - zombie_running
-  - FlyingBackDeath
+  _getAllClips: 1
+  _animationClipNames: []
+  _fallbackMaterial: {fileID: 2100000, guid: 5214194018d9d4e31935e342000a6f1c, type: 2}
+  _addRenderer: 0
+  _targetRoot: {fileID: 0}
 --- !u!1001 &6547189827151679807
 PrefabInstance:
   m_ObjectHideFlags: 0

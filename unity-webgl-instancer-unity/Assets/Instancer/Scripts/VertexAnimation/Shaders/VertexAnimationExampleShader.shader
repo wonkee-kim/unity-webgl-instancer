@@ -1,4 +1,4 @@
-Shader "VertexAnimation/VertexAnimationShader"
+Shader "VertexAnimation/VertexAnimationExampleShader"
 {
     Properties
     {
@@ -138,7 +138,7 @@ Shader "VertexAnimation/VertexAnimationShader"
                 float3 normalWS = normalOS;
 
                 float NoL = saturate(dot(normalWS, _MainLightPosition.xyz));
-                float3 ambient = SampleSH(normalWS) * 2; // TODO: enhance ambient temporarily
+                float3 ambient = SampleSH(normalWS);
                 float3 diffuse = NoL * _MainLightColor.rgb;
 
                 OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);

@@ -7,11 +7,24 @@ using UnityEditor;
 
 public class VertexAnimationDataGenerator : MonoBehaviour
 {
+    [Header("References (Required)")]
     [SerializeField] private SkinnedMeshRenderer _skinnedMeshRenderer;
     [SerializeField] private Animator _animator;
+    [SerializeField] private bool _getAllClips = false;
     [SerializeField] private string[] _animationClipNames; // maximum 4
+    [SerializeField] private Material _fallbackMaterial;
+
+    [Header("Add Renderer")]
+    [SerializeField] private bool _addRenderer = false;
+    [SerializeField] private GameObject _targetRoot;
 
 #if UNITY_EDITOR
+    [ContextMenu(nameof(GetClipNamesFromAnimatorController))]
+    public void GetClipNamesFromAnimatorController()
+    {
+        _animationClipNames = Array.ConvertAll(_animator.runtimeAnimatorController.animationClips, c => c.name);
+    }
+
     [ContextMenu(nameof(GenerateAnimationData))]
     public void GenerateAnimationData()
     {
@@ -23,6 +36,12 @@ public class VertexAnimationDataGenerator : MonoBehaviour
 
         int vertexCount = _skinnedMeshRenderer.sharedMesh.vertexCount;
 
+        if (_getAllClips)
+        {
+            _animationClipNames = Array.ConvertAll(_animator.runtimeAnimatorController.animationClips, c => c.name);
+        }
+
+        int clipCount = Mathf.Min(_animationClipNames.Length, 4); // maximum 4
         VertexAnimationDataObject.AnimationClipData[] animationClipDatas = new VertexAnimationDataObject.AnimationClipData[_animationClipNames.Length];
         for (int clipIndex = 0; clipIndex < _animationClipNames.Length; clipIndex++)
         {
@@ -103,15 +122,27 @@ public class VertexAnimationDataGenerator : MonoBehaviour
         }
 
         // Save to ScriptableObject
-        VertexAnimationDataObject animationDataObject = ScriptableObject.CreateInstance<VertexAnimationDataObject>();
+        // VertexAnimationDataObject animationDataObject = ScriptableObject.CreateInstance<VertexAnimationDataObject>();
+        // AssetDatabase.CreateAsset(animationDataObject, path + $"{nameof(VertexAnimationDataObject)}_{_skinnedMeshRenderer.sharedMesh.name}.asset");
+        VertexAnimationDataObject animationDataObject = CreateOrLoadDataScriptableObject<VertexAnimationDataObject>(path + $"{nameof(VertexAnimationDataObject)}_{_skinnedMeshRenderer.sharedMesh.name}.asset");
         animationDataObject.meshName = _skinnedMeshRenderer.sharedMesh.name;
         animationDataObject.mesh = _skinnedMeshRenderer.sharedMesh;
         animationDataObject.vertexCount = vertexCount;
         animationDataObject.animationClipDatas = animationClipDatas;
+        animationDataObject.fallbackMaterial = _fallbackMaterial;
 
-        AssetDatabase.CreateAsset(animationDataObject, path + $"{nameof(VertexAnimationDataObject)}_{animationDataObject.meshName}.asset");
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
+
+        if (_addRenderer)
+        {
+            if (_targetRoot == null)
+            {
+                _targetRoot = _animator.gameObject;
+            }
+            VertexAnimationRenderer renderer = _targetRoot.AddComponent<VertexAnimationRenderer>();
+            renderer.animationDataObject = animationDataObject;
+        }
     }
 
     private string GetFilePath()
@@ -131,6 +162,20 @@ public class VertexAnimationDataGenerator : MonoBehaviour
             return path;
         }
     }
+
+    private static T CreateOrLoadDataScriptableObject<T>(string assetPath) where T : ScriptableObject
+    {
+        T dataObject = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+        if (dataObject == null)
+        {
+            dataObject = ScriptableObject.CreateInstance<T>();
+            AssetDatabase.CreateAsset(dataObject, assetPath);
+
+            dataObject = AssetDatabase.LoadAssetAtPath<T>(assetPath);
+        }
+
+        return dataObject;
+    }
 #endif
 }
 
@@ -141,8 +186,15 @@ public class InstancerAnimationDataGeneratorInspector : Editor
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
-        GUILayout.Space(10f);
         var generator = target as VertexAnimationDataGenerator;
+
+        GUILayout.Space(10f);
+        if (GUILayout.Button(nameof(generator.GetClipNamesFromAnimatorController)))
+        {
+            generator.GetClipNamesFromAnimatorController();
+        }
+
+        GUILayout.Space(5f);
         if (GUILayout.Button(nameof(generator.GenerateAnimationData)))
         {
             generator.GenerateAnimationData();
