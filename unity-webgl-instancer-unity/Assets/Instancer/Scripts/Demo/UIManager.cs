@@ -11,7 +11,10 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private RectTransform _transformKillCount;
     private Vector2 _killCountPosition;
+    [SerializeField] private RectTransform _transformButtons;
+    private Vector2 _buttonsPosition;
     private Rect _safeAreaCache;
+
     [SerializeField] private TextMeshProUGUI _textKillCount;
 
     [SerializeField] private DemoButtonView _buttonBomb;
@@ -30,9 +33,11 @@ public class UIManager : MonoBehaviour
 
         SpatialBridge.coreGUIService.SetCoreGUIEnabled(SpatialCoreGUITypeFlags.Chat, false);
 
-        _killCountPosition = _transformKillCount.anchoredPosition;
         _safeAreaCache = Screen.safeArea;
+        _killCountPosition = _transformKillCount.anchoredPosition;
+        _buttonsPosition = _transformButtons.anchoredPosition;
         _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
+        _transformButtons.anchoredPosition = _buttonsPosition + new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
 
         _buttonBomb.button.onClick.AddListener(Player.BombAttack);
         _buttonLargeBomb.button.onClick.AddListener(Player.LargeBombAttack);
@@ -44,10 +49,14 @@ public class UIManager : MonoBehaviour
 
     private void Update()
     {
-        if (_safeAreaCache != Screen.safeArea)
+        if (_safeAreaCache.xMin != Screen.safeArea.xMin ||
+            _safeAreaCache.yMin != Screen.safeArea.yMin ||
+            _safeAreaCache.xMax != Screen.safeArea.xMax ||
+            _safeAreaCache.yMax != Screen.safeArea.yMax)
         {
             _safeAreaCache = Screen.safeArea;
             _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
+            _transformButtons.anchoredPosition = _buttonsPosition + new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
         }
     }
 
