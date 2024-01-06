@@ -2,12 +2,19 @@ using UnityEngine;
 using SpatialSys.UnitySDK;
 public class ToggleVirtualCamera : MonoBehaviour
 {
+    public static ToggleVirtualCamera instance { get; private set; }
     [SerializeField] private SpatialVirtualCamera _virtualCamera;
-    private void Update()
+
+    private void Awake()
     {
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (instance == null)
         {
-            _virtualCamera.gameObject.SetActive(!_virtualCamera.gameObject.activeSelf);
+            instance = this;
         }
+    }
+
+    public static void ToggleVirtualCameraActive(bool isOn)
+    {
+        instance._virtualCamera.gameObject.SetActive(isOn);
     }
 }

@@ -1,9 +1,16 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SpatialSys.UnitySDK;
 
 public class ZombieGenerator : MonoBehaviour
 {
+    public static ZombieGenerator instance { get; private set; }
+
+    [SerializeField] private GameObject _saveManager;
+    private int _killCount = 0;
+
     private const int MAX_ZOMBIE_COUNT = 1000;
 
     [SerializeField] private GameObject _zombiePrefab;
@@ -13,6 +20,30 @@ public class ZombieGenerator : MonoBehaviour
     private const float SPAWN_RADIUS = 30f;
 
     private float _lastSpawnTime = 0f;
+
+    private Delegate _customEvHandler;
+
+    private void Awake()
+    {
+        instance = this;
+        _customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
+    }
+    private void OnDestroy()
+    {
+        VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
+    }
+    private void HandleCustomEvent(string message, object[] args)
+    {
+        switch (message)
+        {
+            case "Initialized":
+                UpdateKillCount(addCount: (int)args[0]); // current score + loaded scores
+                break;
+            default:
+                Debug.LogWarning("received unknown message: " + message);
+                break;
+        }
+    }
 
     private void Start()
     {
@@ -30,7 +61,7 @@ public class ZombieGenerator : MonoBehaviour
         if (Time.time - _lastSpawnTime > SPAWN_TIME)
         {
             _lastSpawnTime = Time.time;
-            SpawnZombie(10);
+            SpawnZombie(20);
         }
     }
 
@@ -38,7 +69,7 @@ public class ZombieGenerator : MonoBehaviour
     {
         for (int i = 0; i < count; i++)
         {
-            float theta = Random.Range(0f, Mathf.PI * 2f);
+            float theta = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
             Vector3 spawnPosition = new Vector3(Mathf.Cos(theta), 0f, Mathf.Sin(theta)) * SPAWN_RADIUS;
             spawnPosition += Player.position;
 
@@ -56,5 +87,16 @@ public class ZombieGenerator : MonoBehaviour
                 zombie.gameObject.SetActive(true);
             }
         }
+    }
+
+    public static void AddKill()
+    {
+        instance.UpdateKillCount(1);
+    }
+    private void UpdateKillCount(int addCount)
+    {
+        _killCount += addCount;
+        UIManager.UpdateKillCount(_killCount);
+        VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
     }
 }

@@ -47,10 +47,10 @@ namespace Instancer
 
         private void LateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.L))
-            {
-                useInstancer = !useInstancer;
-            }
+            // if (Input.GetKeyDown(KeyCode.L))
+            // {
+            //     useInstancer = !useInstancer;
+            // }
 
             if (_useInstancerCached != useInstancer)
             {
@@ -62,6 +62,11 @@ namespace Instancer
             {
                 Draw();
             }
+        }
+
+        public static void ToggleInstancer(bool isOn)
+        {
+            instance.useInstancer = isOn;
         }
 
         private void Draw()

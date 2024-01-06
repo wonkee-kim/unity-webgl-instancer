@@ -24,6 +24,10 @@ public class Player : MonoBehaviour
     private const float BOMB_EFFECT_STAY_TIME = 0.2f;
     private float _bombEffectTime = 0f;
 
+    [Header("Large Bomb Attack")]
+    [SerializeField] private BombObject _largeBombObject;
+
+    [Space(10)]
     [SerializeField] private LayerMask _layerMask;
 
     [SerializeField] private InstancerObject _instancerObject;
@@ -67,34 +71,29 @@ public class Player : MonoBehaviour
         }
         _instancerObject.customUniformValues[0].value = new Vector4(_playerPosition.x, _playerPosition.y, _playerPosition.z, 0f);
 
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            _isLaserAttack = !_isLaserAttack;
-        }
+        // if (Input.GetKeyDown(KeyCode.J))
+        // {
+        //     ToggleLaserAttack();
+        // }
+
+        // if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
+        // {
+        //     BombAttackInternal();
+        // }
+
+        // if (Input.GetKeyDown(KeyCode.E))
+        // {
+        //     _largeBombObject.PlayAttack(_playerPosition);
+        // }
+
         if (_isLaserAttack)
         {
-            LaserAttack();
+            UpdateLaserAttack();
         }
-
-        if (Input.GetKeyDown(KeyCode.F) || Input.GetMouseButtonDown(0))
-        {
-            BombAttack();
-        }
-
-        float bombAttackTime = Time.time - _bombEffectTime;
-        if (bombAttackTime > BOMB_EFFECT_STAY_TIME)
-        {
-            _bombEffectRenderer.enabled = false;
-        }
-        else
-        {
-            float opacity = 1f - bombAttackTime / BOMB_EFFECT_STAY_TIME;
-            opacity = opacity * opacity * opacity;
-            _bombEffectRenderer.material.SetFloat(PROP_OPACITY, opacity);
-        }
+        UpdateBombAttack();
     }
 
-    private void LaserAttack()
+    private void UpdateLaserAttack()
     {
         Collider[] colliders = Physics.OverlapSphere(_playerPosition, _laserRadius, _layerMask);
 
@@ -152,7 +151,46 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void BombAttack()
+    private void UpdateBombAttack()
+    {
+        float bombAttackTime = Time.time - _bombEffectTime;
+        if (bombAttackTime > BOMB_EFFECT_STAY_TIME)
+        {
+            _bombEffectRenderer.enabled = false;
+        }
+        else
+        {
+            float opacity = 1f - bombAttackTime / BOMB_EFFECT_STAY_TIME;
+            opacity = opacity * opacity * opacity;
+            _bombEffectRenderer.material.SetFloat(PROP_OPACITY, opacity);
+        }
+    }
+
+    public static void ToggleLaserAttack(bool isOn)
+    {
+        instance.ToggleLaserAttackInternal(isOn);
+    }
+    private void ToggleLaserAttackInternal(bool isOn)
+    {
+        _isLaserAttack = isOn;
+        if (!_isLaserAttack)
+        {
+            for (int i = 0; i < _lineRenderers.Length; i++)
+            {
+                _lineRenderers[i].enabled = false;
+            }
+            for (int i = 0; i < _lineRendererTimers.Length; i++)
+            {
+                _lineRendererTimers[i] = -1f;
+            }
+        }
+    }
+
+    public static void BombAttack()
+    {
+        instance.BombAttackInternal();
+    }
+    private void BombAttackInternal()
     {
         Vector3 randomPosition = Random.insideUnitCircle * _bombRadius;
         Vector3 attackPosition = new Vector3(randomPosition.x, 0f, randomPosition.y) + _playerPosition;
@@ -170,5 +208,14 @@ public class Player : MonoBehaviour
                 zombie.Hit((int)(30f * (1f - distance / _bombAttackRadius)), attackPosition);
             }
         }
+    }
+
+    public static void LargeBombAttack()
+    {
+        instance.LargeBombAttackInternal();
+    }
+    private void LargeBombAttackInternal()
+    {
+        _largeBombObject.PlayAttack(_playerPosition);
     }
 }

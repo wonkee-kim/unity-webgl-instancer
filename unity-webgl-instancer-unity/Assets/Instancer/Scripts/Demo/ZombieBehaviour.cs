@@ -14,7 +14,7 @@ public class ZombieBehaviour : MonoBehaviour
     }
     [SerializeField] private RenderMode _renderMode = RenderMode.Instancer;
 
-    [SerializeField] private InstancerRenderer _instancerRenderer;  
+    [SerializeField] private InstancerRenderer _instancerRenderer;
     [SerializeField] private VertexAnimationRenderer _vertexAnimationRenderer;
     private VertexAnimationDataObject _animationDataObject =>
         (_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
@@ -107,6 +107,7 @@ public class ZombieBehaviour : MonoBehaviour
         if (_health <= 0)
         {
             _instancerRenderer.PlayAnimationClip(1);
+            ZombieGenerator.AddKill();
         }
 
         if (_hitCoroutine != null)
