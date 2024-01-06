@@ -235,8 +235,12 @@ public class InstancerAnimationDataGeneratorInspector : Editor
 
         var generator = target as VertexAnimationDataGenerator;
 
+        EditorGUI.BeginDisabledGroup(true);
+        EditorGUILayout.ObjectField("Script", MonoScript.FromMonoBehaviour((VertexAnimationDataGenerator)target), typeof(VertexAnimationDataGenerator), false);
+        EditorGUI.EndDisabledGroup();
+
         // 1. Root
-        GUILayout.Space(20f);
+        GUILayout.Space(10f);
         GUILayout.Label("1. Assign Target GameObject and click 'SetupGenerator' button", EditorStyles.boldLabel);
         GUILayout.Space(2f);
         EditorGUI.indentLevel += 1;
