@@ -37,7 +37,7 @@ public class UIManager : MonoBehaviour
         _killCountPosition = _transformKillCount.anchoredPosition;
         _buttonsPosition = _transformButtons.anchoredPosition;
         _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
-        _transformButtons.anchoredPosition = _buttonsPosition + new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
+        _transformButtons.anchoredPosition = _buttonsPosition - new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
 
         _buttonBomb.button.onClick.AddListener(Player.BombAttack);
         _buttonLargeBomb.button.onClick.AddListener(Player.LargeBombAttack);
@@ -56,7 +56,7 @@ public class UIManager : MonoBehaviour
         {
             _safeAreaCache = Screen.safeArea;
             _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
-            _transformButtons.anchoredPosition = _buttonsPosition + new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
+            _transformButtons.anchoredPosition = _buttonsPosition - new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
         }
     }
 
