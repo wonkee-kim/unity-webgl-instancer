@@ -1,4 +1,5 @@
 using UnityEngine;
+
 #if UNITY_EDITOR
 using System;
 using System.IO;
@@ -7,22 +8,48 @@ using UnityEditor;
 
 public class VertexAnimationDataGenerator : MonoBehaviour
 {
-    [Header("References (Required)")]
+    // [Header("Root (Required, Use 'SetupGenerator' button to get references)")]
+    [SerializeField] private GameObject _targetGameObject;
+
+    // [Header("Add Renderer after generation")]
+    [SerializeField] private bool _addRenderer = false;
+
+    // [Header("References")]
     [SerializeField] private SkinnedMeshRenderer _skinnedMeshRenderer;
     [SerializeField] private Animator _animator;
-    [SerializeField] private bool _getAllClips = false;
     [SerializeField] private string[] _animationClipNames; // maximum 4
+    public string[] animationClipNames => _animationClipNames;
     [SerializeField] private Material _fallbackMaterial;
 
-    [Header("Add Renderer")]
-    [SerializeField] private bool _addRenderer = false;
-    [SerializeField] private GameObject _targetRoot;
+    // [Header("Generated Data")]
+    [SerializeField] private VertexAnimationDataObject _animationDataObject;
+    public VertexAnimationDataObject animationDataObject => _animationDataObject;
 
 #if UNITY_EDITOR
+    [ContextMenu(nameof(SetupGenerator))]
+    public void SetupGenerator()
+    {
+        _skinnedMeshRenderer = _targetGameObject.GetComponentInChildren<SkinnedMeshRenderer>();
+        _animator = _targetGameObject.GetComponentInChildren<Animator>();
+        GetClipNamesFromAnimatorController();
+    }
+
     [ContextMenu(nameof(GetClipNamesFromAnimatorController))]
     public void GetClipNamesFromAnimatorController()
     {
-        _animationClipNames = Array.ConvertAll(_animator.runtimeAnimatorController.animationClips, c => c.name);
+        if (_animator.runtimeAnimatorController == null)
+        {
+            Debug.LogError("No Animator Controller found in the Animator component.");
+            return;
+        }
+        else
+        {
+            _animationClipNames = Array.ConvertAll(_animator.runtimeAnimatorController.animationClips, c => c.name);
+            if (_animationClipNames.Length > 4)
+            {
+                Debug.LogWarning("Maximum 4 animation clips are supported. Only the first 4 will be used.");
+            }
+        }
     }
 
     [ContextMenu(nameof(GenerateAnimationData))]
@@ -36,14 +63,9 @@ public class VertexAnimationDataGenerator : MonoBehaviour
 
         int vertexCount = _skinnedMeshRenderer.sharedMesh.vertexCount;
 
-        if (_getAllClips)
-        {
-            _animationClipNames = Array.ConvertAll(_animator.runtimeAnimatorController.animationClips, c => c.name);
-        }
-
         int clipCount = Mathf.Min(_animationClipNames.Length, 4); // maximum 4
-        VertexAnimationDataObject.AnimationClipData[] animationClipDatas = new VertexAnimationDataObject.AnimationClipData[_animationClipNames.Length];
-        for (int clipIndex = 0; clipIndex < _animationClipNames.Length; clipIndex++)
+        VertexAnimationDataObject.AnimationClipData[] animationClipDatas = new VertexAnimationDataObject.AnimationClipData[clipCount];
+        for (int clipIndex = 0; clipIndex < clipCount; clipIndex++)
         {
             // Get Animation Clip
             string animationClipName = _animationClipNames[clipIndex];
@@ -131,16 +153,14 @@ public class VertexAnimationDataGenerator : MonoBehaviour
         animationDataObject.animationClipDatas = animationClipDatas;
         animationDataObject.fallbackMaterial = _fallbackMaterial;
 
+        _animationDataObject = animationDataObject;
+
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
 
         if (_addRenderer)
         {
-            if (_targetRoot == null)
-            {
-                _targetRoot = _animator.gameObject;
-            }
-            VertexAnimationRenderer renderer = _targetRoot.AddComponent<VertexAnimationRenderer>();
+            VertexAnimationRenderer renderer = _targetGameObject.AddComponent<VertexAnimationRenderer>();
             renderer.animationDataObject = animationDataObject;
         }
     }
@@ -183,22 +203,127 @@ public class VertexAnimationDataGenerator : MonoBehaviour
 [CustomEditor(typeof(VertexAnimationDataGenerator))]
 public class InstancerAnimationDataGeneratorInspector : Editor
 {
+    private SerializedProperty targetGameObject;
+
+    private SerializedProperty addRenderer;
+
+    private bool showReferences = false;
+    private SerializedProperty skinnedMeshRenderer;
+    private SerializedProperty animator;
+    private SerializedProperty animationClipNames;
+    private SerializedProperty fallbackMaterial;
+
+    private SerializedProperty animationDataObject;
+
+    private void OnEnable()
+    {
+        targetGameObject = serializedObject.FindProperty("_targetGameObject");
+
+        addRenderer = serializedObject.FindProperty("_addRenderer");
+
+        skinnedMeshRenderer = serializedObject.FindProperty("_skinnedMeshRenderer");
+        animator = serializedObject.FindProperty("_animator");
+        animationClipNames = serializedObject.FindProperty("_animationClipNames");
+        fallbackMaterial = serializedObject.FindProperty("_fallbackMaterial");
+
+        animationDataObject = serializedObject.FindProperty("_animationDataObject");
+    }
+
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
+        serializedObject.Update();
+
         var generator = target as VertexAnimationDataGenerator;
 
-        GUILayout.Space(10f);
-        if (GUILayout.Button(nameof(generator.GetClipNamesFromAnimatorController)))
+        // 1. Root
+        GUILayout.Space(20f);
+        GUILayout.Label("1. Assign Target GameObject and click 'SetupGenerator' button", EditorStyles.boldLabel);
+        GUILayout.Space(2f);
+        EditorGUI.indentLevel += 1;
+        EditorGUILayout.PropertyField(targetGameObject, new GUIContent("Target GameObject"));
+        if (GUILayout.Button(nameof(generator.SetupGenerator)))
         {
-            generator.GetClipNamesFromAnimatorController();
+            generator.SetupGenerator();
+        }
+        EditorGUI.indentLevel -= 1;
+
+        // 2. Check
+        GUILayout.Space(20f);
+        GUILayout.Label("2. Check animation clips and references", EditorStyles.boldLabel);
+        GUILayout.Space(2f);
+        EditorGUI.indentLevel += 1;
+        if (generator.animationClipNames != null)
+        {
+            string clipInfo = "";
+            if (generator.animationClipNames.Length <= 0)
+            {
+                clipInfo = "No animation clip found";
+            }
+            else
+            {
+                if (generator.animationClipNames.Length > 4)
+                {
+                    clipInfo = "(Warning!) Maximum 4 animation clips are supported. Only the first 4 will be used.\n\n";
+                }
+                clipInfo += $"Clip Count: {generator.animationClipNames.Length}";
+                for (int i = 0; i < generator.animationClipNames.Length; i++)
+                {
+                    clipInfo += $"\n[{i}] {generator.animationClipNames[i]}";
+                    if (i >= 4)
+                    {
+                        clipInfo += " (Ignored)";
+                    }
+                }
+            }
+            GUILayout.Label(clipInfo, EditorStyles.helpBox);
         }
 
-        GUILayout.Space(5f);
+        // References
+        GUILayout.BeginVertical(EditorStyles.helpBox);
+        showReferences = EditorGUILayout.Foldout(showReferences, "References");
+        if (showReferences)
+        {
+            EditorGUI.indentLevel += 1;
+            EditorGUILayout.PropertyField(skinnedMeshRenderer, new GUIContent("skinnedMeshRenderer"));
+            EditorGUILayout.PropertyField(animator, new GUIContent("animator"));
+            EditorGUILayout.PropertyField(animationClipNames, new GUIContent("animationClipNames"));
+            if (GUILayout.Button(nameof(generator.GetClipNamesFromAnimatorController)))
+            {
+                generator.GetClipNamesFromAnimatorController();
+            }
+            GUILayout.Space(5f);
+            EditorGUILayout.PropertyField(fallbackMaterial, new GUIContent("fallbackMaterial"));
+            EditorGUI.indentLevel -= 1;
+            GUILayout.Space(5f);
+        }
+        GUILayout.EndVertical();
+        EditorGUI.indentLevel -= 1;
+
+        // 3. Generate
+        GUILayout.Space(20f);
+        GUILayout.Label("3. Click 'GenerateAnimationData' button to generate animation data", EditorStyles.boldLabel);
+        GUILayout.Space(2f);
+        EditorGUI.indentLevel += 1;
+        EditorGUILayout.PropertyField(addRenderer, new GUIContent("Add Renderer after generation"));
         if (GUILayout.Button(nameof(generator.GenerateAnimationData)))
         {
             generator.GenerateAnimationData();
         }
+        EditorGUI.indentLevel -= 1;
+
+        // Generated Data
+        if (generator.animationDataObject != null)
+        {
+            GUILayout.Space(20f);
+            GUILayout.Label("Generated Data", EditorStyles.boldLabel);
+            GUILayout.Space(2f);
+            EditorGUI.indentLevel += 1;
+            EditorGUILayout.PropertyField(animationDataObject, new GUIContent("animationDataObject"));
+            EditorGUI.indentLevel -= 1;
+        }
+
+        GUILayout.Space(20f);
+        serializedObject.ApplyModifiedProperties();
     }
 }
 #endif
