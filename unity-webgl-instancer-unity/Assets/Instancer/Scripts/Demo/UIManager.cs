@@ -24,6 +24,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private DemoToggleView _toggleCameraView;
     [SerializeField] private DemoToggleView _toggleInstancing;
 
+    [SerializeField] private GameObject _rootToShowHide;
+
     private void Awake()
     {
         if (instance == null)
@@ -58,10 +60,35 @@ public class UIManager : MonoBehaviour
             _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
             _transformButtons.anchoredPosition = _buttonsPosition - new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
         }
+
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            _rootToShowHide.SetActive(!_rootToShowHide.activeSelf);
+        }
+
+        if (!_rootToShowHide.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.Z))
+            {
+                ToggleVirtualCamera.ToggleVirtualCameraActive();
+            }
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                Player.ToggleLaserAttack();
+            }
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                Player.BombAttack();
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Player.LargeBombAttack();
+            }
+        }
     }
 
     public static void UpdateKillCount(int killCount)
     {
-        instance._textKillCount.text = "Kill Count: " + killCount.ToString("N0");
+        instance._textKillCount.text = "Score: " + killCount.ToString("N0");
     }
 }

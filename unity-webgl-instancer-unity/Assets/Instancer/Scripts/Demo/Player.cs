@@ -170,6 +170,10 @@ public class Player : MonoBehaviour
     {
         instance.ToggleLaserAttackInternal(isOn);
     }
+    public static void ToggleLaserAttack()
+    {
+        instance.ToggleLaserAttackInternal(!instance._isLaserAttack);
+    }
     private void ToggleLaserAttackInternal(bool isOn)
     {
         _isLaserAttack = isOn;

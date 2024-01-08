@@ -17,4 +17,8 @@ public class ToggleVirtualCamera : MonoBehaviour
     {
         instance._virtualCamera.gameObject.SetActive(isOn);
     }
+    public static void ToggleVirtualCameraActive()
+    {
+        instance._virtualCamera.gameObject.SetActive(!instance._virtualCamera.gameObject.activeSelf);
+    }
 }
