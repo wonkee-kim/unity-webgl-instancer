@@ -2285,8 +2285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _saveManager: {fileID: 0}
-  _zombiePrefab: {fileID: 2866669916661440269, guid: 7fbc014c1528b442ea3f1bef06a56364,
-    type: 3}
+  _zombiePrefab: {fileID: 0}
 --- !u!1001 &777786327266746037
 PrefabInstance:
   m_ObjectHideFlags: 0
