@@ -21,23 +21,24 @@ public class ZombieGenerator : MonoBehaviour
 
     private float _lastSpawnTime = 0f;
 
-    private Delegate _customEvHandler;
+    //private Delegate _customEvHandler;
 
     private void Awake()
     {
+        Debug.Log("AWAKE?!");
         //instance = this;
-        _customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
+        //_customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
     }
     private void OnDestroy()
     {
-        VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
+        //VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
     }
     private void HandleCustomEvent(string message, object[] args)
     {
         switch (message)
         {
             case "Initialized":
-                UpdateKillCount(addCount: (int)args[0]); // current score + loaded scores
+                //UpdateKillCount(addCount: (int)args[0]); // current score + loaded scores
                 break;
             default:
                 Debug.LogWarning("received unknown message: " + message);
@@ -93,10 +94,10 @@ public class ZombieGenerator : MonoBehaviour
     // {
     //     instance.UpdateKillCount(1);
     // }
-    private void UpdateKillCount(int addCount)
-    {
-        _killCount += addCount;
-        UIManager.UpdateKillCount(_killCount);
-        VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
-    }
+    // private void UpdateKillCount(int addCount)
+    // {
+    //     _killCount += addCount;
+    //     UIManager.UpdateKillCount(_killCount);
+    //     VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
+    // }
 }
