@@ -107,7 +107,7 @@ public class ZombieBehaviour : MonoBehaviour
         if (_health <= 0)
         {
             _instancerRenderer.PlayAnimationClip(1);
-            ZombieGenerator.AddKill();
+            //ZombieGenerator.AddKill();
         }
 
         if (_hitCoroutine != null)

@@ -6,7 +6,7 @@ using SpatialSys.UnitySDK;
 
 public class ZombieGenerator : MonoBehaviour
 {
-    public static ZombieGenerator instance { get; private set; }
+    //public static ZombieGenerator instance { get; private set; }
 
     [SerializeField] private GameObject _saveManager;
     private int _killCount = 0;
@@ -25,7 +25,7 @@ public class ZombieGenerator : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        //instance = this;
         _customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
     }
     private void OnDestroy()
@@ -89,10 +89,10 @@ public class ZombieGenerator : MonoBehaviour
         }
     }
 
-    public static void AddKill()
-    {
-        instance.UpdateKillCount(1);
-    }
+    // public static void AddKill()
+    // {
+    //     instance.UpdateKillCount(1);
+    // }
     private void UpdateKillCount(int addCount)
     {
         _killCount += addCount;
