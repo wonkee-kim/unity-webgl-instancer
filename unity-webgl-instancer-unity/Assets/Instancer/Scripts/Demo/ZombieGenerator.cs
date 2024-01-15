@@ -15,7 +15,7 @@ public class ZombieGenerator : MonoBehaviour
 
     [SerializeField] private GameObject _zombiePrefab;
     private List<ZombieBehaviour> _zombiesPool = new List<ZombieBehaviour>(MAX_ZOMBIE_COUNT);
-
+/*
     private const float SPAWN_TIME = 0.03f;
     private const float SPAWN_RADIUS = 30f;
 
@@ -100,4 +100,5 @@ public class ZombieGenerator : MonoBehaviour
     //     UIManager.UpdateKillCount(_killCount);
     //     VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
     // }
+    */
 }
