@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Instancer
 {
@@ -69,10 +70,18 @@ namespace Instancer
             instance.useInstancer = isOn;
         }
 
+        struct MyStruct {
+            public int i;
+            public float y;
+        }
         private void Draw()
         {
+            List<InstancerObject> instancerObjects  = new List<InstancerObject>();
+            List<MyStruct> myStructs = new List<MyStruct>();
+            myStructs.Add(new MyStruct());
             foreach (InstancerObject instancer in _instancerRenderers.Keys)
             {
+                instancerObjects.Add(instancer);
                 if (instancer.instanceMode == InstancerObject.InstanceMode.DrawMeshInstancedProcedural)
                 {
                     DrawMeshInstancedProcedural(instancer, _instancerRenderers[instancer]);
@@ -82,6 +91,11 @@ namespace Instancer
                     DrawMeshInstanced(instancer, _instancerRenderers[instancer]);
                 }
             }
+            
+            var filteredList = instancerObjects.Where(x => x != null).ToList();
+            Debug.Log("Filtered list count: " + filteredList.Count);
+            var filteredList2 = myStructs.Where(x => x.i == 0).ToList();
+            Debug.Log("Filtered list count2: " + filteredList2.Count);
         }
 
         private void DrawMeshInstanced(InstancerObject instancer, List<InstancerRenderer> instancerRenderers)
