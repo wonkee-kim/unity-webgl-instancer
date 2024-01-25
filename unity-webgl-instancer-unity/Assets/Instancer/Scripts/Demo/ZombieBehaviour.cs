@@ -1,7 +1,9 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Scripting;
 // using Instancer;
 
+[Preserve]
 public class ZombieBehaviour : MonoBehaviour
 {
     private static readonly int PROP_EMISSION = Shader.PropertyToID("_Emission");
@@ -19,7 +21,7 @@ public class ZombieBehaviour : MonoBehaviour
     //private VertexAnimationDataObject _animationDataObject => _vertexAnimationRenderer.animationDataObject;
         //(_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
 
-    [SerializeField] private Rigidbody _rigidbody;
+    /*[SerializeField] private Rigidbody _rigidbody;
 
     private float _speed = 3f;
     private int _health = 10;
@@ -31,7 +33,7 @@ public class ZombieBehaviour : MonoBehaviour
     private float _dieTime;
     public bool readyToHit = true;
 
-    private Vector3 _hitPosition;
+    private Vector3 _hitPosition;*/
 
     /*private void Awake()
     {
