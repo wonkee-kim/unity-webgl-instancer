@@ -14,23 +14,26 @@ public class ZombieGenerator : MonoBehaviour
     private const int MAX_ZOMBIE_COUNT = 1000;
 
     [SerializeField] private GameObject _zombiePrefab;
-    private List<ZombieBehaviour> _zombiesPool = new List<ZombieBehaviour>(MAX_ZOMBIE_COUNT);
+    private ArrayList/*<ZombieBehaviour*/ _zombiesPool = new ArrayList/*List<ZombieBehaviour>*/(MAX_ZOMBIE_COUNT);
 
     private const float SPAWN_TIME = 0.03f;
     private const float SPAWN_RADIUS = 30f;
 
     private float _lastSpawnTime = 0f;
 
-    private Delegate _customEvHandler;
+    //private Delegate _customEvHandler;
 
     private void Awake()
     {
+        Debug.Log("XXXX ZombieGenerator.Awake()");
         instance = this;
         //_customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
     }
     private void OnDestroy()
     {
         //VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
+        if (instance == this)
+            instance = null;
     }
     private void HandleCustomEvent(string message, object[] args)
     {
@@ -73,7 +76,17 @@ public class ZombieGenerator : MonoBehaviour
             Vector3 spawnPosition = new Vector3(Mathf.Cos(theta), 0f, Mathf.Sin(theta)) * SPAWN_RADIUS;
             //spawnPosition += Player.position;
 
-            ZombieBehaviour zombie = _zombiesPool.Find(z => !z.gameObject.activeSelf);
+            ZombieBehaviour zombie = null;
+            for (int j = 0; j < _zombiesPool.Count; j++)
+            {
+                ZombieBehaviour z = (ZombieBehaviour)_zombiesPool[j];
+                if (!zombie.gameObject.activeSelf)
+                {
+                    zombie = z;
+                    break;
+                }
+            }
+            //ZombieBehaviour zombie = _zombiesPool.Find(z => !z.gameObject.activeSelf);
             // if (zombie == null)
             // {
             //     GameObject zombieObject = Instantiate(_zombiePrefab, spawnPosition, Quaternion.identity, transform);

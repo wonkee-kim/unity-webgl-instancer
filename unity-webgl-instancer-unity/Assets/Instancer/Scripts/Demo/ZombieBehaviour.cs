@@ -40,6 +40,13 @@ public class ZombieBehaviour : MonoBehaviour
         }
     }
 
+    private void OnDestroy() {
+        Debug.Log("ZombieBehaviour.OnDestroy()");
+        // is this good enough?
+        StopAllCoroutines();
+        _hitCoroutine = null;
+    }
+
     private void Update()
     {
         // if (Player.instance != null && readyToHit)
@@ -114,8 +121,8 @@ public class ZombieBehaviour : MonoBehaviour
         {
             StopCoroutine(_hitCoroutine);
         }
-        // _hitCoroutine = HitCoroutine();
-        // StartCoroutine(_hitCoroutine);
+        //_hitCoroutine = HitCoroutine();
+        //StartCoroutine(_hitCoroutine);
     }
 
     private IEnumerator HitCoroutine()
@@ -124,12 +131,16 @@ public class ZombieBehaviour : MonoBehaviour
         _emission = 8f;
         // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
         yield return new WaitForSeconds(0.01f);
+        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() A");
         while (_emission > 0f)
         {
+            Debug.Log("XXXX ZombieBehaviour.HitCoroutine() B " + _emission);
             _emission -= Time.deltaTime * 30f;
             // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
             yield return null;
         }
+        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() C");
+
         _emission = 0f;
         if (_health > 0)
         {
@@ -140,5 +151,7 @@ public class ZombieBehaviour : MonoBehaviour
             yield return new WaitForSeconds(_dieTime - (Time.realtimeSinceStartup - currentTime));
             gameObject.SetActive(false);
         }
+        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() D");
+        
     }
 }
