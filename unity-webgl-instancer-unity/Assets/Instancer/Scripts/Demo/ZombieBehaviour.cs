@@ -15,8 +15,8 @@ public class ZombieBehaviour : MonoBehaviour
     [SerializeField] private RenderMode _renderMode = RenderMode.Instancer;
 
     //[SerializeField] private InstancerRenderer _instancerRenderer;
-    [SerializeField] private VertexAnimationRenderer _vertexAnimationRenderer;
-    private VertexAnimationDataObject _animationDataObject => _vertexAnimationRenderer.animationDataObject;
+    //[SerializeField] private VertexAnimationRenderer _vertexAnimationRenderer;
+    //private VertexAnimationDataObject _animationDataObject => _vertexAnimationRenderer.animationDataObject;
         //(_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
 
     [SerializeField] private Rigidbody _rigidbody;
@@ -33,10 +33,10 @@ public class ZombieBehaviour : MonoBehaviour
 
     private void Awake()
     {
-        _dieTime = _animationDataObject.animationClipDatas[1].animationLength;
+        //_dieTime = _animationDataObject.animationClipDatas[1].animationLength;
         if (_renderMode == RenderMode.VertexAnimation)
         {
-            _vertexAnimationRenderer.renderer.material.SetFloat(PROP_RANDOM_SEED, Random.Range(0f, 1f));
+            //_vertexAnimationRenderer.renderer.material.SetFloat(PROP_RANDOM_SEED, Random.Range(0f, 1f));
         }
     }
 
@@ -62,15 +62,15 @@ public class ZombieBehaviour : MonoBehaviour
                 // }
                 // break;
             case RenderMode.VertexAnimation:
-                _vertexAnimationRenderer.renderer.material.SetFloat(PROP_EMISSION, _emission);
+                //_vertexAnimationRenderer.renderer.material.SetFloat(PROP_EMISSION, _emission);
 
                 if (Input.GetKeyDown(KeyCode.C))
                 {
-                    _vertexAnimationRenderer.PlayAnimationClip(0);
+                    //_vertexAnimationRenderer.PlayAnimationClip(0);
                 }
                 if (Input.GetKeyDown(KeyCode.V))
                 {
-                    _vertexAnimationRenderer.PlayAnimationClip(1);
+                    //_vertexAnimationRenderer.PlayAnimationClip(1);
                 }
                 break;
         }
