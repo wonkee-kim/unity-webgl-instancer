@@ -96,7 +96,7 @@ public class ZombieGenerator : MonoBehaviour
     private void UpdateKillCount(int addCount)
     {
         _killCount += addCount;
-        UIManager.UpdateKillCount(_killCount);
+       //UIManager.UpdateKillCount(_killCount);
         VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
     }
 }
