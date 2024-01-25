@@ -25,7 +25,9 @@ public class ZombieBehaviour : MonoBehaviour
     private int _health = 10;
     private float _emission = 0f;
 
-    private IEnumerator _hitCoroutine;
+    /// <summary>
+     private IEnumerator _hitCoroutine;
+    /// </summary>
     private float _dieTime;
     public bool readyToHit = true;
 
@@ -43,8 +45,8 @@ public class ZombieBehaviour : MonoBehaviour
     private void OnDestroy() {
         Debug.Log("ZombieBehaviour.OnDestroy()");
         // is this good enough?
-        StopAllCoroutines();
-        _hitCoroutine = null;
+        // StopAllCoroutines();
+        // _hitCoroutine = null;
     }
 
     private void Update()
@@ -114,13 +116,13 @@ public class ZombieBehaviour : MonoBehaviour
         if (_health <= 0)
         {
             // _instancerRenderer.PlayAnimationClip(1);
-            ZombieGenerator.AddKill();
+            //ZombieGenerator.AddKill();
         }
 
-        if (_hitCoroutine != null)
-        {
-            StopCoroutine(_hitCoroutine);
-        }
+        // if (_hitCoroutine != null)
+        // {
+        //     StopCoroutine(_hitCoroutine);
+        // }
         //_hitCoroutine = HitCoroutine();
         //StartCoroutine(_hitCoroutine);
     }

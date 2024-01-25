@@ -6,7 +6,7 @@ using SpatialSys.UnitySDK;
 
 public class ZombieGenerator : MonoBehaviour
 {
-    public static ZombieGenerator instance { get; private set; }
+    /*public static ZombieGenerator instance { get; private set; }
 
     [SerializeField] private GameObject _saveManager;
     private int _killCount = 0;
@@ -14,7 +14,7 @@ public class ZombieGenerator : MonoBehaviour
     private const int MAX_ZOMBIE_COUNT = 1000;
 
     [SerializeField] private GameObject _zombiePrefab;
-    private ArrayList/*<ZombieBehaviour*/ _zombiesPool = new ArrayList/*List<ZombieBehaviour>*/(MAX_ZOMBIE_COUNT);
+    private ArrayList _zombiesPool = new ArrayList(MAX_ZOMBIE_COUNT); //ZombieBehaviour
 
     private const float SPAWN_TIME = 0.03f;
     private const float SPAWN_RADIUS = 30f;
@@ -111,5 +111,5 @@ public class ZombieGenerator : MonoBehaviour
         _killCount += addCount;
        //UIManager.UpdateKillCount(_killCount);
         VisualScriptingUtility.TriggerCustomEvent(_saveManager, "SaveScore", new object[] { _killCount });
-    }
+    }*/
 }
