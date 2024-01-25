@@ -71,7 +71,7 @@ public class ZombieGenerator : MonoBehaviour
         {
             float theta = UnityEngine.Random.Range(0f, Mathf.PI * 2f);
             Vector3 spawnPosition = new Vector3(Mathf.Cos(theta), 0f, Mathf.Sin(theta)) * SPAWN_RADIUS;
-            spawnPosition += Player.position;
+            //spawnPosition += Player.position;
 
             ZombieBehaviour zombie = _zombiesPool.Find(z => !z.gameObject.activeSelf);
             // if (zombie == null)

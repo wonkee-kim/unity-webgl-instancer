@@ -42,11 +42,11 @@ public class ZombieBehaviour : MonoBehaviour
 
     private void Update()
     {
-        if (Player.instance != null && readyToHit)
-        {
-            Vector3 direction = (Player.position - transform.position).normalized;
-            _rigidbody.velocity = direction * _speed;
-        }
+        // if (Player.instance != null && readyToHit)
+        // {
+        //     Vector3 direction = (Player.position - transform.position).normalized;
+        //     _rigidbody.velocity = direction * _speed;
+        // }
 
         switch (_renderMode)
         {
