@@ -114,8 +114,8 @@ public class ZombieBehaviour : MonoBehaviour
         {
             StopCoroutine(_hitCoroutine);
         }
-        _hitCoroutine = HitCoroutine();
-        StartCoroutine(_hitCoroutine);
+        // _hitCoroutine = HitCoroutine();
+        // StartCoroutine(_hitCoroutine);
     }
 
     private IEnumerator HitCoroutine()
