@@ -33,7 +33,7 @@ public class ZombieBehaviour : MonoBehaviour
 
     private Vector3 _hitPosition;
 
-    private void Awake()
+    /*private void Awake()
     {
         //_dieTime = _animationDataObject.animationClipDatas[1].animationLength;
         if (_renderMode == RenderMode.VertexAnimation)
@@ -125,7 +125,7 @@ public class ZombieBehaviour : MonoBehaviour
         // }
         //_hitCoroutine = HitCoroutine();
         //StartCoroutine(_hitCoroutine);
-    }
+    }*/
 
     // private IEnumerator HitCoroutine()
     // {
