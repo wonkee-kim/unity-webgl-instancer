@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using Instancer;
+// using Instancer;
 using SpatialSys.UnitySDK;
 using TMPro;
 using UnityEngine;
@@ -39,12 +39,12 @@ public class UIManager : MonoBehaviour
         _transformKillCount.anchoredPosition = _killCountPosition + new Vector2(_safeAreaCache.xMin, _safeAreaCache.yMin);
         _transformButtons.anchoredPosition = _buttonsPosition - new Vector2(Screen.width - _safeAreaCache.xMax, Screen.height - _safeAreaCache.yMax);
 
-        _buttonBomb.button.onClick.AddListener(Player.BombAttack);
-        _buttonLargeBomb.button.onClick.AddListener(Player.LargeBombAttack);
+        // _buttonBomb.button.onClick.AddListener(Player.BombAttack);
+        // _buttonLargeBomb.button.onClick.AddListener(Player.LargeBombAttack);
 
-        _toggleLaserAttack.toggle.onValueChanged.AddListener(Player.ToggleLaserAttack);
-        _toggleCameraView.toggle.onValueChanged.AddListener(ToggleVirtualCamera.ToggleVirtualCameraActive);
-        _toggleInstancing.toggle.onValueChanged.AddListener(InstancerManager.ToggleInstancer);
+        // _toggleLaserAttack.toggle.onValueChanged.AddListener(Player.ToggleLaserAttack);
+        // _toggleCameraView.toggle.onValueChanged.AddListener(ToggleVirtualCamera.ToggleVirtualCameraActive);
+        // _toggleInstancing.toggle.onValueChanged.AddListener(InstancerManager.ToggleInstancer);
     }
 
     private void Update()

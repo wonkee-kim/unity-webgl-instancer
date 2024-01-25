@@ -26,11 +26,11 @@ public class ZombieGenerator : MonoBehaviour
     private void Awake()
     {
         instance = this;
-        _customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
+        //_customEvHandler = VisualScriptingUtility.AddCustomEventListener(gameObject, HandleCustomEvent);
     }
     private void OnDestroy()
     {
-        VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
+        //VisualScriptingUtility.RemoveCustomEventListener(gameObject, _customEvHandler);
     }
     private void HandleCustomEvent(string message, object[] args)
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 using SpatialSys.UnitySDK;
-using Instancer;
+// using Instancer;
 
 public class Player : MonoBehaviour
 {
@@ -30,7 +30,7 @@ public class Player : MonoBehaviour
     [Space(10)]
     [SerializeField] private LayerMask _layerMask;
 
-    [SerializeField] private InstancerObject _instancerObject;
+    //[SerializeField] private InstancerObject _instancerObject;
 
     private void Awake()
     {
@@ -69,7 +69,7 @@ public class Player : MonoBehaviour
             _playerPosition = transform.position;
             _playerForward = transform.forward;
         }
-        _instancerObject.customUniformValues[0].value = new Vector4(_playerPosition.x, _playerPosition.y, _playerPosition.z, 0f);
+        //_instancerObject.customUniformValues[0].value = new Vector4(_playerPosition.x, _playerPosition.y, _playerPosition.z, 0f);
 
         // if (Input.GetKeyDown(KeyCode.J))
         // {

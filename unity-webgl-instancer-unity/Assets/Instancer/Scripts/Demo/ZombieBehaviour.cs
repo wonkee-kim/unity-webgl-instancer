@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using Instancer;
+// using Instancer;
 
 public class ZombieBehaviour : MonoBehaviour
 {
@@ -14,10 +14,10 @@ public class ZombieBehaviour : MonoBehaviour
     }
     [SerializeField] private RenderMode _renderMode = RenderMode.Instancer;
 
-    [SerializeField] private InstancerRenderer _instancerRenderer;
+    //[SerializeField] private InstancerRenderer _instancerRenderer;
     [SerializeField] private VertexAnimationRenderer _vertexAnimationRenderer;
-    private VertexAnimationDataObject _animationDataObject =>
-        (_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
+    private VertexAnimationDataObject _animationDataObject => _vertexAnimationRenderer.animationDataObject;
+        //(_renderMode == RenderMode.Instancer) ? _instancerRenderer.instancerObject.animationDataObject : _vertexAnimationRenderer.animationDataObject;
 
     [SerializeField] private Rigidbody _rigidbody;
 
@@ -51,16 +51,16 @@ public class ZombieBehaviour : MonoBehaviour
         switch (_renderMode)
         {
             case RenderMode.Instancer:
-                _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, _emission);
-                if (readyToHit)
-                {
-                    _instancerRenderer.customValue2 = Player.position;
-                }
-                else
-                {
-                    _instancerRenderer.customValue2 = _hitPosition;
-                }
-                break;
+                // _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, _emission);
+                // if (readyToHit)
+                // {
+                //     _instancerRenderer.customValue2 = Player.position;
+                // }
+                // else
+                // {
+                //     _instancerRenderer.customValue2 = _hitPosition;
+                // }
+                // break;
             case RenderMode.VertexAnimation:
                 _vertexAnimationRenderer.renderer.material.SetFloat(PROP_EMISSION, _emission);
 
@@ -84,10 +84,10 @@ public class ZombieBehaviour : MonoBehaviour
         _health = 10;
 
         Color color = Color.HSVToRGB(Random.Range(0.0f, 0.2f) - 0.1f, Random.Range(0.8f, 1f), Random.Range(0.2f, 1f));
-        _instancerRenderer.customColor = new Vector4(color.r, color.g, color.b, Random.Range(0f, 1f));
-        _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, _emission);
+        // _instancerRenderer.customColor = new Vector4(color.r, color.g, color.b, Random.Range(0f, 1f));
+        // _instancerRenderer.customValue = new Vector4(transform.position.x, transform.position.z, transform.localScale.y, _emission);
 
-        _instancerRenderer.PlayAnimationClip(0);
+        // _instancerRenderer.PlayAnimationClip(0);
     }
 
     public void Hit(int damage, Vector3 hitPosition)
@@ -106,7 +106,7 @@ public class ZombieBehaviour : MonoBehaviour
         _health -= damage;
         if (_health <= 0)
         {
-            _instancerRenderer.PlayAnimationClip(1);
+            // _instancerRenderer.PlayAnimationClip(1);
             ZombieGenerator.AddKill();
         }
 
