@@ -26,7 +26,7 @@ public class ZombieBehaviour : MonoBehaviour
     private float _emission = 0f;
 
     /// <summary>
-     private IEnumerator _hitCoroutine;
+    // private IEnumerator _hitCoroutine;
     /// </summary>
     private float _dieTime;
     public bool readyToHit = true;
@@ -127,33 +127,33 @@ public class ZombieBehaviour : MonoBehaviour
         //StartCoroutine(_hitCoroutine);
     }
 
-    private IEnumerator HitCoroutine()
-    {
-        float currentTime = Time.realtimeSinceStartup;
-        _emission = 8f;
-        // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
-        yield return new WaitForSeconds(0.01f);
-        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() A");
-        while (_emission > 0f)
-        {
-            Debug.Log("XXXX ZombieBehaviour.HitCoroutine() B " + _emission);
-            _emission -= Time.deltaTime * 30f;
-            // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
-            yield return null;
-        }
-        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() C");
+    // private IEnumerator HitCoroutine()
+    // {
+    //     float currentTime = Time.realtimeSinceStartup;
+    //     _emission = 8f;
+    //     // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
+    //     yield return new WaitForSeconds(0.01f);
+    //     Debug.Log("XXXX ZombieBehaviour.HitCoroutine() A");
+    //     while (_emission > 0f)
+    //     {
+    //         Debug.Log("XXXX ZombieBehaviour.HitCoroutine() B " + _emission);
+    //         _emission -= Time.deltaTime * 30f;
+    //         // transform.localScale = new Vector3(1f, emission * 0.2f + 1f, 1f);
+    //         yield return null;
+    //     }
+    //     Debug.Log("XXXX ZombieBehaviour.HitCoroutine() C");
 
-        _emission = 0f;
-        if (_health > 0)
-        {
-            readyToHit = true;
-        }
-        else
-        {
-            yield return new WaitForSeconds(_dieTime - (Time.realtimeSinceStartup - currentTime));
-            gameObject.SetActive(false);
-        }
-        Debug.Log("XXXX ZombieBehaviour.HitCoroutine() D");
+    //     _emission = 0f;
+    //     if (_health > 0)
+    //     {
+    //         readyToHit = true;
+    //     }
+    //     else
+    //     {
+    //         yield return new WaitForSeconds(_dieTime - (Time.realtimeSinceStartup - currentTime));
+    //         gameObject.SetActive(false);
+    //     }
+    //     Debug.Log("XXXX ZombieBehaviour.HitCoroutine() D");
         
-    }
+    // }
 }
