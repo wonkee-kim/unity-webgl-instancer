@@ -58,7 +58,7 @@ public class Player : MonoBehaviour
     private void Update()
     {
 #if !UNITY_EDITOR
-        if (SpatialBridge.GetIsSceneInitialized())
+        if (SpatialBridge.spaceContentService.isSceneInitialized)
         {
             _playerPosition = SpatialBridge.actorService.localActor.avatar.position;
             _playerForward = SpatialBridge.actorService.localActor.avatar.rotation * Vector3.forward;
